@@ -1,0 +1,154 @@
+package com.lifeledger.config;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+/**
+ * Configura o DataSource com criação automática do banco PostgreSQL.
+ *
+ * Decisão de design:
+ * O Spring Boot não cria bancos PostgreSQL automaticamente (diferente do H2).
+ * Esta configuração resolve isso conectando ao banco 'postgres' (admin) antes
+ * de criar a DataSource principal, verificando e criando o banco alvo se necessário.
+ *
+ * Flyway e JPA dependem da DataSource, portanto as migrações só rodam após
+ * a garantia de que o banco existe — sem necessidade de configuração manual.
+ */
+@Configuration
+@Slf4j
+public class DataSourceConfig {
+
+    @Value("${lifeledger.database.host:localhost}")
+    private String host;
+
+    @Value("${lifeledger.database.port:5432}")
+    private int port;
+
+    @Value("${lifeledger.database.name:lifeledger}")
+    private String dbName;
+
+    @Value("${lifeledger.database.username:postgres}")
+    private String username;
+
+    @Value("${lifeledger.database.password:postgres}")
+    private String password;
+
+    @Value("${lifeledger.database.auto-create:true}")
+    private boolean autoCreate;
+
+    @Value("${lifeledger.database.pool.minimum-idle:2}")
+    private int minimumIdle;
+
+    @Value("${lifeledger.database.pool.maximum-pool-size:10}")
+    private int maxPoolSize;
+
+    @Value("${lifeledger.database.pool.connection-timeout:30000}")
+    private long connectionTimeout;
+
+    @Value("${lifeledger.database.pool.idle-timeout:600000}")
+    private long idleTimeout;
+
+    @Value("${lifeledger.database.pool.max-lifetime:1800000}")
+    private long maxLifetime;
+
+    /**
+     * DataSource primário da aplicação.
+     *
+     * O método createDatabaseIfNotExists() é invocado DENTRO do @Bean — isso
+     * garante que o banco exista antes que Flyway e JPA tentem se conectar,
+     * pois ambos dependem deste bean via auto-configuração do Spring Boot.
+     */
+    @Bean
+    @Primary
+    public DataSource dataSource() {
+        if (autoCreate) {
+            createDatabaseIfNotExists();
+        }
+        return buildHikariDataSource();
+    }
+
+    // ── Internals ─────────────────────────────────────────────────────────────
+
+    private void createDatabaseIfNotExists() {
+        // Conecta ao banco 'postgres' (sempre existe) para verificar/criar o alvo
+        String adminUrl = String.format("jdbc:postgresql://%s:%d/postgres", host, port);
+
+        log.info("Checking database '{}' on {}:{}...", dbName, host, port);
+
+        try (Connection conn = DriverManager.getConnection(adminUrl, username, password);
+             Statement stmt = conn.createStatement()) {
+
+            // pg_database é o catálogo de bancos do PostgreSQL
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT 1 FROM pg_database WHERE datname = '" + sanitize(dbName) + "'"
+            );
+
+            if (!rs.next()) {
+                log.info("Database '{}' not found. Creating...", dbName);
+                // CREATE DATABASE não aceita parâmetros preparados — sanitizamos o nome
+                stmt.execute("CREATE DATABASE \"" + sanitize(dbName) + "\"");
+                log.info("Database '{}' created successfully.", dbName);
+            } else {
+                log.debug("Database '{}' already exists.", dbName);
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to ensure database '{}' exists: {}", dbName, e.getMessage());
+            throw new IllegalStateException(
+                    "Cannot connect to PostgreSQL at %s:%d. Check if PostgreSQL is running and credentials are correct."
+                            .formatted(host, port), e
+            );
+        }
+    }
+
+    private HikariDataSource buildHikariDataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s", host, port, dbName));
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setDriverClassName("org.postgresql.Driver");
+
+        // Pool settings
+        config.setMinimumIdle(minimumIdle);
+        config.setMaximumPoolSize(maxPoolSize);
+        config.setConnectionTimeout(connectionTimeout);
+        config.setIdleTimeout(idleTimeout);
+        config.setMaxLifetime(maxLifetime);
+
+        // Validação de conexão
+        config.setConnectionTestQuery("SELECT 1");
+        config.setPoolName("LifeLedger-HikariPool");
+
+        // Performance
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+
+        log.info("HikariCP pool configured: min={}, max={}", minimumIdle, maxPoolSize);
+        return new HikariDataSource(config);
+    }
+
+    /**
+     * Previne SQL injection no nome do banco.
+     * Aceita apenas letras, números, underscores e hífens.
+     */
+    private String sanitize(String name) {
+        if (!name.matches("[a-zA-Z0-9_\\-]+")) {
+            throw new IllegalArgumentException("Invalid database name: " + name);
+        }
+        return name;
+    }
+}

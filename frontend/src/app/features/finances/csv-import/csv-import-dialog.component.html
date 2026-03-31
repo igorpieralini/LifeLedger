@@ -1,0 +1,190 @@
+<!-- ══════════════════════════════════════════════════
+     Import Dialog — suporte a CSV e PDF (Itaú)
+══════════════════════════════════════════════════ -->
+
+<div class="import-dialog">
+
+  <!-- ── Header ── -->
+  <div class="dialog-head">
+    <div class="dialog-head__left">
+      <div class="dialog-icon">
+        <mat-icon>upload_file</mat-icon>
+      </div>
+      <div>
+        <h2>Importar Extrato</h2>
+        <p class="text-muted">CSV ou PDF Itaú — categorização automática</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="close()" aria-label="Fechar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ════════════════ STEP: PICK ════════════════ -->
+  <ng-container *ngIf="step() === 'pick'">
+
+    <div class="dialog-body">
+
+      <!-- Formatos suportados -->
+      <div class="format-chips">
+        <div class="format-chip csv">
+          <mat-icon>table_chart</mat-icon>
+          <div>
+            <strong>.CSV</strong>
+            <span>Qualquer banco</span>
+          </div>
+        </div>
+        <div class="format-chip pdf">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <div>
+            <strong>.PDF</strong>
+            <span>Extrato Itaú</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="drop-zone"
+           [class.drag-over]="dragOver()"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave()"
+           (drop)="onDrop($event)"
+           (click)="fileInput.click()"
+           role="button"
+           tabindex="0"
+           (keydown.enter)="fileInput.click()">
+        <mat-icon class="drop-icon">cloud_upload</mat-icon>
+        <p class="drop-text">Arraste o arquivo aqui</p>
+        <p class="drop-sub text-muted">ou clique para selecionar</p>
+        <div class="drop-badges">
+          <span class="drop-badge">.csv</span>
+          <span class="drop-badge">.pdf</span>
+        </div>
+        <input #fileInput type="file" accept=".csv,.pdf" hidden (change)="onFileSelect($event)">
+      </div>
+
+      <!-- Dica CSV -->
+      <div class="hint-row">
+        <mat-icon>info_outline</mat-icon>
+        <span>
+          CSV: colunas <code>Data, Descrição, Valor</code>
+          &nbsp;·&nbsp;
+          PDF: extrato Itaú (formato oficial)
+        </span>
+      </div>
+
+    </div>
+
+    <div class="dialog-foot">
+      <button class="btn-ghost" (click)="close()">Cancelar</button>
+    </div>
+
+  </ng-container>
+
+  <!-- ════════════════ STEP: LOADING ════════════════ -->
+  <ng-container *ngIf="step() === 'loading'">
+    <div class="dialog-body loading-body">
+      <div class="spinner"></div>
+      <p class="loading-label">
+        Processando
+        <strong>{{ fileName() }}</strong>
+        <span class="file-type-badge" [class.pdf]="fileType() === 'pdf'">
+          {{ fileType()?.toUpperCase() }}
+        </span>
+      </p>
+      <p class="text-muted" style="font-size:.8rem">Extraindo e categorizando transações…</p>
+    </div>
+  </ng-container>
+
+  <!-- ════════════════ STEP: RESULT ════════════════ -->
+  <ng-container *ngIf="step() === 'result' && result() as r">
+    <div class="dialog-body result-body">
+
+      <!-- Badge do tipo de arquivo -->
+      <div class="result-source">
+        <mat-icon>{{ fileType() === 'pdf' ? 'picture_as_pdf' : 'table_chart' }}</mat-icon>
+        <span>{{ fileName() }}</span>
+        <span class="file-type-badge" [class.pdf]="fileType() === 'pdf'">
+          {{ fileType()?.toUpperCase() }}
+        </span>
+      </div>
+
+      <!-- Métricas -->
+      <div class="metrics-row">
+        <div class="metric">
+          <span class="metric-val text-indigo">{{ r.imported }}</span>
+          <span class="metric-lbl">Importadas</span>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric">
+          <span class="metric-val text-emerald">{{ r.totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <span class="metric-lbl">Receitas</span>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric">
+          <span class="metric-val text-rose">{{ r.totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <span class="metric-lbl">Despesas</span>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric">
+          <span class="metric-val"
+                [class.text-emerald]="r.balance >= 0"
+                [class.text-rose]="r.balance < 0">
+            {{ r.balance | currency:'BRL':'symbol':'1.2-2' }}
+          </span>
+          <span class="metric-lbl">Saldo</span>
+        </div>
+      </div>
+
+      <!-- Categorias -->
+      <div class="categories-section" *ngIf="categoryEntries().length">
+        <h4 class="section-label">Categorias identificadas</h4>
+        <div class="cat-list">
+          <div class="cat-row" *ngFor="let entry of categoryEntries()">
+            <span class="cat-name">{{ entry[0] }}</span>
+            <span class="cat-count">{{ entry[1] }} tx</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linhas ignoradas -->
+      <div class="skipped-section" *ngIf="r.skipped > 0">
+        <h4 class="section-label warn-label">
+          <mat-icon>warning</mat-icon>
+          {{ r.skipped }} linha{{ r.skipped > 1 ? 's' : '' }} ignorada{{ r.skipped > 1 ? 's' : '' }}
+        </h4>
+        <div class="skipped-list">
+          <div class="skipped-row" *ngFor="let s of r.skippedRows">
+            <span class="skipped-line text-muted">#{{ s.line }}</span>
+            <span class="skipped-reason">{{ s.reason }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dialog-foot">
+      <button class="btn-ghost" (click)="reset()">
+        <mat-icon>refresh</mat-icon> Importar outro
+      </button>
+      <button class="btn-primary" (click)="confirm()">
+        <mat-icon>check</mat-icon> Concluir
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- ════════════════ STEP: ERROR ════════════════ -->
+  <ng-container *ngIf="step() === 'error'">
+    <div class="dialog-body error-body">
+      <div class="error-icon">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <p class="error-msg">{{ errorMsg() }}</p>
+    </div>
+    <div class="dialog-foot">
+      <button class="btn-ghost" (click)="reset()">Tentar novamente</button>
+      <button class="btn-ghost" (click)="close()">Fechar</button>
+    </div>
+  </ng-container>
+
+</div>

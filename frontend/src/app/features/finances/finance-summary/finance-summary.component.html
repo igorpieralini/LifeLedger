@@ -1,0 +1,101 @@
+<div class="summary-page">
+
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/finances" class="back-link">
+          <mat-icon>arrow_back</mat-icon> Transações
+        </a>
+      </div>
+      <h1>Relatório Financeiro</h1>
+    </div>
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Ano</mat-label>
+        <mat-select [value]="year()" (selectionChange)="onYearChange($event.value)">
+          <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Mês</mat-label>
+        <mat-select [value]="month()" (selectionChange)="onMonthChange($event.value)">
+          <mat-option *ngFor="let m of months" [value]="m.v">{{ m.l }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <ng-container *ngIf="summary() as s; else loadingTpl">
+
+    <!-- Summary cards -->
+    <div class="grid-3 summary-cards">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(63,185,80,.12)">
+          <mat-icon style="color:var(--success)">trending_up</mat-icon>
+        </div>
+        <span class="stat-label">Total de receitas</span>
+        <span class="stat-value text-success">{{ s.totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(248,81,73,.12)">
+          <mat-icon style="color:var(--danger)">trending_down</mat-icon>
+        </div>
+        <span class="stat-label">Total de despesas</span>
+        <span class="stat-value text-danger">{{ s.totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(88,166,255,.12)">
+          <mat-icon style="color:var(--accent)">account_balance</mat-icon>
+        </div>
+        <span class="stat-label">Saldo do período</span>
+        <span class="stat-value" [class.text-success]="s.balance >= 0" [class.text-danger]="s.balance < 0">
+          {{ s.balance | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Chart + breakdown -->
+    <div class="bottom-grid" *ngIf="s.expensesByCategory.length">
+      <div class="card chart-card">
+        <h3>Despesas por categoria</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart
+                  [data]="chartData()"
+                  [options]="chartOptions"
+                  type="doughnut">
+          </canvas>
+        </div>
+      </div>
+
+      <div class="card breakdown-card">
+        <h3>Detalhamento</h3>
+        <div class="breakdown-list">
+          <div class="breakdown-item" *ngFor="let c of s.expensesByCategory">
+            <div class="cat-dot" [style.background]="c.categoryColor ?? '#58a6ff'"></div>
+            <div class="cat-info">
+              <span class="cat-name">{{ c.categoryName }}</span>
+              <div class="progress-bar-wrapper">
+                <div class="progress-fill" [style.width.%]="c.percentage"
+                     [style.background]="c.categoryColor ?? '#58a6ff'"></div>
+              </div>
+            </div>
+            <div class="cat-values">
+              <span class="cat-total">{{ c.total | currency:'BRL':'symbol':'1.2-2' }}</span>
+              <span class="cat-pct text-muted">{{ c.percentage | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card empty-chart" *ngIf="!s.expensesByCategory.length">
+      <mat-icon>pie_chart</mat-icon>
+      <p>Nenhuma despesa categorizada em {{ monthLabel(s.month) }} {{ s.year }}</p>
+    </div>
+
+  </ng-container>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state"><mat-icon class="spin">sync</mat-icon></div>
+  </ng-template>
+</div>

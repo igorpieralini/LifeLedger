@@ -1,0 +1,117 @@
+<div class="detail-page" *ngIf="goal() as g; else loadingTpl">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/goals" class="back-link"><mat-icon>arrow_back</mat-icon> Metas</a>
+  </div>
+
+  <div class="detail-header">
+    <div class="header-left">
+      <span class="badge" [class]="statusClass(g.status)">{{ statusLabel(g.status) }}</span>
+      <h1>{{ g.title }}</h1>
+      <p class="text-muted" *ngIf="g.description">{{ g.description }}</p>
+    </div>
+    <button mat-stroked-button (click)="openEdit()">
+      <mat-icon>edit</mat-icon> Editar
+    </button>
+  </div>
+
+  <div class="detail-grid">
+
+    <!-- Progress card -->
+    <div class="card progress-card">
+      <h3>Progresso</h3>
+      <div class="big-progress">
+        <span class="pct-label">{{ g.progress }}%</span>
+        <div class="progress-bar-wrapper big">
+          <div class="progress-fill"
+               [style.width.%]="g.progress"
+               [class.success]="g.progress >= 100"
+               [class.warning]="g.progress >= 50 && g.progress < 100">
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-values" *ngIf="g.targetValue">
+        <span>{{ g.currentValue | number:'1.0-2' }}</span>
+        <span class="text-muted">de {{ g.targetValue | number:'1.0-2' }}</span>
+      </div>
+
+      <!-- Update progress -->
+      <form [formGroup]="progressForm" (ngSubmit)="updateProgress()" class="progress-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Valor atual</mat-label>
+          <input matInput type="number" formControlName="currentValue" min="0">
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit">Atualizar</button>
+      </form>
+    </div>
+
+    <!-- Info card -->
+    <div class="card info-card">
+      <h3>Informações</h3>
+      <dl class="info-list">
+        <div class="info-row">
+          <dt><mat-icon>calendar_today</mat-icon> Ano</dt>
+          <dd>{{ g.year }}</dd>
+        </div>
+        <div class="info-row" *ngIf="g.deadline">
+          <dt><mat-icon>event</mat-icon> Prazo</dt>
+          <dd>{{ g.deadline | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div class="info-row">
+          <dt><mat-icon>schedule</mat-icon> Criada em</dt>
+          <dd>{{ g.createdAt | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div class="info-row">
+          <dt><mat-icon>update</mat-icon> Atualizada em</dt>
+          <dd>{{ g.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+        </div>
+      </dl>
+
+      <!-- Status update -->
+      <div class="status-section">
+        <h4>Alterar status</h4>
+        <div class="status-btns">
+          <button *ngFor="let s of statuses" mat-stroked-button
+                  [class.active]="g.status === s"
+                  (click)="updateStatus(s)">
+            {{ statusLabel(s) }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sub-goals -->
+  <div class="card sub-goals-card">
+    <div class="section-header">
+      <h3>Sub-metas ({{ g.subGoals?.length ?? 0 }})</h3>
+    </div>
+
+    <div class="sub-list" *ngIf="g.subGoals?.length; else noSub">
+      <div class="sub-item" *ngFor="let s of g.subGoals">
+        <div class="sub-info">
+          <span class="sub-title">{{ s.title }}</span>
+          <span class="badge badge-muted">{{ s.period }}</span>
+        </div>
+        <div class="sub-progress">
+          <div class="progress-bar-wrapper">
+            <div class="progress-fill" [style.width.%]="s.progress"></div>
+          </div>
+          <span class="text-muted">{{ s.progress }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noSub>
+      <p class="empty-msg text-muted">Nenhuma sub-meta criada.</p>
+    </ng-template>
+  </div>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-state"><mat-icon class="spin">sync</mat-icon></div>
+</ng-template>
