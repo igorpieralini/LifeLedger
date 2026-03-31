@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { AuthService } from '../../core/services/auth.service';
 import { Dashboard } from '../../core/models/dashboard.model';
 
 @Component({
@@ -16,10 +15,7 @@ import { Dashboard } from '../../core/models/dashboard.model';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  data  = signal<Dashboard | null>(null);
-  user  = this.auth.currentUser;
-
-  firstName = computed(() => this.user()?.name?.split(' ')[0] ?? '');
+  data = signal<Dashboard | null>(null);
 
   today = computed(() => {
     return new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -29,7 +25,7 @@ export class DashboardComponent implements OnInit {
     return new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   });
 
-  constructor(private dashboardService: DashboardService, private auth: AuthService) {}
+  constructor(private dashboardService: DashboardService) {}
 
   ngOnInit() {
     this.dashboardService.getDashboard().subscribe(d => this.data.set(d));

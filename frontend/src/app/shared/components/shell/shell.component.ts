@@ -1,8 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../core/services/auth.service';
 
 interface NavItem { label: string; icon: string; route: string; exact?: boolean; }
 interface NavGroup { label?: string; items: NavItem[]; }
@@ -16,8 +15,6 @@ interface NavGroup { label?: string; items: NavItem[]; }
 })
 export class ShellComponent {
   open = signal(true);
-  user = this.auth.currentUser;
-  initial = computed(() => this.user()?.name?.charAt(0).toUpperCase() ?? '?');
 
   navGroups: NavGroup[] = [
     {
@@ -38,8 +35,5 @@ export class ShellComponent {
     }
   ];
 
-  constructor(private auth: AuthService) {}
-
   toggle() { this.open.update(v => !v); }
-  logout() { this.auth.logout(); }
 }

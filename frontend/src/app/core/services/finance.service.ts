@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, of } from 'rxjs';
 import { environment } from '@env/environment';
 import {
   Category, CategoryRequest, CsvImportResult, FinanceSummary,
   Page, Transaction, TransactionRequest
 } from '../models/finance.model';
+import { MOCK_CATEGORIES, MOCK_FINANCE_SUMMARY, MOCK_TRANSACTIONS_PAGE } from '../mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class FinanceService {
@@ -21,7 +23,9 @@ export class FinanceService {
 
   getTransactions(page = 0, size = 20) {
     const params = new HttpParams().set('page', page).set('size', size).set('sort', 'date,desc');
-    return this.http.get<Page<Transaction>>(this.txApi, { params });
+    return this.http.get<Page<Transaction>>(this.txApi, { params }).pipe(
+      catchError(() => of(MOCK_TRANSACTIONS_PAGE))
+    );
   }
 
   getTransaction(id: number) {
@@ -38,7 +42,9 @@ export class FinanceService {
 
   getSummary(year: number, month: number) {
     const params = new HttpParams().set('year', year).set('month', month);
-    return this.http.get<FinanceSummary>(`${this.txApi}/summary`, { params });
+    return this.http.get<FinanceSummary>(`${this.txApi}/summary`, { params }).pipe(
+      catchError(() => of({ ...MOCK_FINANCE_SUMMARY, year, month }))
+    );
   }
 
   importCsv(file: File) {
@@ -60,7 +66,9 @@ export class FinanceService {
   }
 
   getCategories() {
-    return this.http.get<Category[]>(this.catApi);
+    return this.http.get<Category[]>(this.catApi).pipe(
+      catchError(() => of(MOCK_CATEGORIES))
+    );
   }
 
   updateCategory(id: number, request: CategoryRequest) {

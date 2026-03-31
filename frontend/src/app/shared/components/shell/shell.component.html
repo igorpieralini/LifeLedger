@@ -47,23 +47,6 @@
       </ng-container>
     </nav>
 
-    <!-- Footer / User -->
-    <div class="sidebar-footer">
-      <div class="user-row" *ngIf="open()">
-        <div class="user-avatar">{{ initial() }}</div>
-        <div class="user-info">
-          <span class="user-name">{{ user()?.name }}</span>
-          <span class="user-email">{{ user()?.email }}</span>
-        </div>
-      </div>
-      <div class="user-avatar mini" *ngIf="!open()" [title]="user()?.name ?? ''">
-        {{ initial() }}
-      </div>
-      <button class="logout-btn" (click)="logout()" title="Sair">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </div>
-
   </aside>
 
   <!-- ═══════════════ MAIN ═══════════════ -->
