@@ -39,6 +39,9 @@ public class CsvImportServiceImpl implements CsvImportService {
     private final CategoryRepository    categoryRepository;
     private final UserRepository        userRepository;
 
+    /** Linha válida do CSV após o parse inicial. */
+    private record CsvRow(int lineNum, String raw, LocalDate date, String desc, BigDecimal amount) {}
+
     @Override
     @Transactional
     public CsvImportResult importCsv(MultipartFile file, Long userId) {
@@ -49,13 +52,9 @@ public class CsvImportServiceImpl implements CsvImportService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
-        // Cache local para evitar múltiplos selects por categoria (escopo da transação)
-        Map<String, Category> categoryCache = new HashMap<>();
-
-        List<ImportedRow> imported  = new ArrayList<>();
-        List<SkippedRow>  skipped   = new ArrayList<>();
-        BigDecimal totalIncome  = BigDecimal.ZERO;
-        BigDecimal totalExpense = BigDecimal.ZERO;
+        // ── Fase 1: parse completo do arquivo ────────────────────────────────
+        List<CsvRow>     validRows = new ArrayList<>();
+        List<SkippedRow> skipped   = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -69,7 +68,6 @@ public class CsvImportServiceImpl implements CsvImportService {
                 line = line.trim();
                 if (line.isBlank()) continue;
 
-                // Pula a primeira linha se for cabeçalho
                 if (!headerSkipped) {
                     headerSkipped = true;
                     if (isHeaderLine(line)) continue;
@@ -92,28 +90,8 @@ public class CsvImportServiceImpl implements CsvImportService {
                         continue;
                     }
 
-                    TransactionType type = amount.compareTo(BigDecimal.ZERO) >= 0
-                            ? TransactionType.INCOME : TransactionType.EXPENSE;
-                    BigDecimal absAmount = amount.abs().setScale(2, RoundingMode.HALF_UP);
-
-                    CategoryMatcher.Match match    = CategoryMatcher.match(desc);
-                    Category              category = resolveCategory(match, user, categoryCache);
-
-                    Transaction tx = Transaction.builder()
-                            .user(user)
-                            .category(category)
-                            .type(type)
-                            .amount(absAmount)
-                            .description(desc)
-                            .date(date)
-                            .build();
-
-                    transactionRepository.save(tx);
-
-                    imported.add(new ImportedRow(desc, date, absAmount, type, category.getName()));
-
-                    if (type == TransactionType.INCOME) totalIncome  = totalIncome.add(absAmount);
-                    else                                 totalExpense = totalExpense.add(absAmount);
+                    validRows.add(new CsvRow(lineNum, line, date, desc,
+                            amount.abs().setScale(2, RoundingMode.HALF_UP)));
 
                 } catch (Exception ex) {
                     skipped.add(new SkippedRow(lineNum, line, ex.getMessage()));
@@ -126,14 +104,60 @@ public class CsvImportServiceImpl implements CsvImportService {
             throw new BusinessException("Erro ao processar arquivo: " + ex.getMessage());
         }
 
+        // ── Fase 2: fingerprints das transações já existentes ─────────────────
+        Set<String> existing = buildExistingFingerprints(user.getId(), validRows);
+
+        // ── Fase 3: salvar somente as novas ───────────────────────────────────
+        Map<String, Category> categoryCache = new HashMap<>();
+        List<ImportedRow>     imported      = new ArrayList<>();
+        int        duplicates   = 0;
+        BigDecimal totalIncome  = BigDecimal.ZERO;
+        BigDecimal totalExpense = BigDecimal.ZERO;
+
+        for (CsvRow row : validRows) {
+            try {
+                String fp = fingerprint(row.date(), row.desc(), row.amount());
+                if (existing.contains(fp)) {
+                    duplicates++;
+                    continue;
+                }
+
+                TransactionType type = row.amount().compareTo(BigDecimal.ZERO) >= 0
+                        ? TransactionType.INCOME : TransactionType.EXPENSE;
+
+                CategoryMatcher.Match match    = CategoryMatcher.match(row.desc());
+                Category              category = resolveCategory(match, user, categoryCache);
+
+                transactionRepository.save(Transaction.builder()
+                        .user(user)
+                        .category(category)
+                        .type(type)
+                        .amount(row.amount())
+                        .description(row.desc())
+                        .date(row.date())
+                        .build());
+
+                existing.add(fp);
+
+                imported.add(new ImportedRow(row.desc(), row.date(), row.amount(), type, category.getName()));
+
+                if (type == TransactionType.INCOME) totalIncome  = totalIncome.add(row.amount());
+                else                                 totalExpense = totalExpense.add(row.amount());
+
+            } catch (Exception ex) {
+                skipped.add(new SkippedRow(row.lineNum(), row.raw(), ex.getMessage()));
+            }
+        }
+
         Map<String, Long> byCategory = imported.stream()
                 .collect(Collectors.groupingBy(ImportedRow::category, Collectors.counting()));
 
         BigDecimal balance = totalIncome.subtract(totalExpense);
 
         return new CsvImportResult(
-                imported.size() + skipped.size(),
+                imported.size() + duplicates + skipped.size(),
                 imported.size(),
+                duplicates,
                 skipped.size(),
                 totalIncome,
                 totalExpense,
@@ -145,6 +169,22 @@ public class CsvImportServiceImpl implements CsvImportService {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private Set<String> buildExistingFingerprints(Long userId, List<CsvRow> rows) {
+        if (rows.isEmpty()) return new HashSet<>();
+
+        LocalDate from = rows.stream().map(CsvRow::date).min(LocalDate::compareTo).get();
+        LocalDate to   = rows.stream().map(CsvRow::date).max(LocalDate::compareTo).get();
+
+        Set<String> fps = new HashSet<>();
+        transactionRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, from, to)
+                .forEach(t -> fps.add(fingerprint(t.getDate(), t.getDescription(), t.getAmount())));
+        return fps;
+    }
+
+    private static String fingerprint(LocalDate date, String description, BigDecimal amount) {
+        return date + "|" + description.toLowerCase() + "|" + amount.toPlainString();
+    }
 
     private Category resolveCategory(CategoryMatcher.Match match, User user,
                                      Map<String, Category> cache) {

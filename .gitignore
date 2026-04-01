@@ -10,6 +10,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
 *.war
+.sql
 
 # ─── Node / Angular ───────────────────────────────────────────────────────────
 frontend/node_modules/

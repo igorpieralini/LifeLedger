@@ -34,7 +34,7 @@ public class SubGoal {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "goal_period")
+    @Column(nullable = false, length = 20)
     private GoalPeriod period;
 
     @Column(name = "reference_date", nullable = false)
@@ -52,7 +52,7 @@ public class SubGoal {
     private Short progress = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "goal_status")
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private Goal.GoalStatus status = Goal.GoalStatus.IN_PROGRESS;
 

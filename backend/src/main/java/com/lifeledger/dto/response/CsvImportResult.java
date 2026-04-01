@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Resultado de uma importação de CSV financeiro.
+ * Resultado de uma importação de CSV/PDF financeiro.
+ * <p>
+ * {@code totalRows = imported + duplicates + skipped}
  */
 public record CsvImportResult(
         int totalRows,
         int imported,
-        int skipped,
+        int duplicates,   // já existiam no banco — ignorados sem erro
+        int skipped,      // falha de parse ou dado inválido
         BigDecimal totalIncome,
         BigDecimal totalExpense,
         BigDecimal balance,

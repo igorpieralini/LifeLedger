@@ -9,19 +9,31 @@
       </div>
       <h1>Relatório Financeiro</h1>
     </div>
-    <div class="filters">
-      <mat-form-field appearance="outline">
-        <mat-label>Ano</mat-label>
-        <mat-select [value]="year()" (selectionChange)="onYearChange($event.value)">
-          <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Mês</mat-label>
-        <mat-select [value]="month()" (selectionChange)="onMonthChange($event.value)">
-          <mat-option *ngFor="let m of months" [value]="m.v">{{ m.l }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <!-- Period picker (single button + inline panel, avoids CDK overlay issues) -->
+    <div class="period-picker">
+      <button class="period-btn" (click)="togglePicker($event)">
+        <mat-icon>calendar_today</mat-icon>
+        <span>{{ monthLabel(month()) }} {{ year() }}</span>
+        <mat-icon class="chevron" [class.open]="pickerOpen()">expand_more</mat-icon>
+      </button>
+
+      <div class="period-panel" *ngIf="pickerOpen()" (click)="$event.stopPropagation()">
+        <!-- Years -->
+        <div class="picker-years">
+          <button *ngFor="let y of years"
+                  class="picker-opt"
+                  [class.active]="y === year()"
+                  (click)="selectYear(y)">{{ y }}</button>
+        </div>
+        <div class="picker-divider"></div>
+        <!-- Months grid -->
+        <div class="picker-months">
+          <button *ngFor="let m of months"
+                  class="picker-opt"
+                  [class.active]="m.v === month()"
+                  (click)="selectMonth(m.v)">{{ m.short }}</button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -46,7 +46,7 @@ public class Goal {
     private Short progress = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "goal_status")
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private GoalStatus status = GoalStatus.IN_PROGRESS;
 

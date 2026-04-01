@@ -68,6 +68,7 @@ export interface Page<T> {
 export interface CsvImportResult {
   totalRows:    number;
   imported:     number;
+  duplicates:   number;   // já existiam no banco — ignorados
   skipped:      number;
   totalIncome:  number;
   totalExpense: number;

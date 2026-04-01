@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ public class PdfImportServiceImpl implements PdfImportService {
         Map<String, Category> categoryCache = new HashMap<>();
         List<ImportedRow>     imported      = new ArrayList<>();
         List<SkippedRow>      skipped       = new ArrayList<>();
+        int        duplicates   = 0;
         BigDecimal totalIncome  = BigDecimal.ZERO;
         BigDecimal totalExpense = BigDecimal.ZERO;
 
@@ -60,11 +62,21 @@ public class PdfImportServiceImpl implements PdfImportService {
             skipped.add(new SkippedRow(0, msg, "Formato não reconhecido"));
         }
 
+        // Carrega fingerprints das transações já existentes no intervalo do extrato
+        // para detectar duplicatas sem fazer um SELECT por linha.
+        Set<String> existing = buildExistingFingerprints(user.getId(), parsed.rows());
+
         for (ParsedRow row : parsed.rows()) {
             try {
                 TransactionType type = row.amount().compareTo(BigDecimal.ZERO) >= 0
                         ? TransactionType.INCOME : TransactionType.EXPENSE;
                 BigDecimal absAmount = row.amount().abs();
+
+                String fp = fingerprint(row.date(), row.description(), absAmount);
+                if (existing.contains(fp)) {
+                    duplicates++;
+                    continue;  // já existe — pula silenciosamente
+                }
 
                 CategoryMatcher.Match match    = CategoryMatcher.match(row.description());
                 Category              category = resolveCategory(match, user, categoryCache);
@@ -79,6 +91,9 @@ public class PdfImportServiceImpl implements PdfImportService {
                         .build();
 
                 transactionRepository.save(tx);
+
+                // Adiciona à lista de existentes para evitar duplicatas dentro do mesmo arquivo
+                existing.add(fp);
 
                 imported.add(new ImportedRow(
                         row.description(), row.date(), absAmount, type, category.getName()));
@@ -97,8 +112,9 @@ public class PdfImportServiceImpl implements PdfImportService {
         BigDecimal balance = totalIncome.subtract(totalExpense);
 
         return new CsvImportResult(
-                imported.size() + skipped.size(),
+                imported.size() + duplicates + skipped.size(),
                 imported.size(),
+                duplicates,
                 skipped.size(),
                 totalIncome,
                 totalExpense,
@@ -110,6 +126,27 @@ public class PdfImportServiceImpl implements PdfImportService {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Carrega as transações do usuário no intervalo de datas do extrato e
+     * devolve um Set de fingerprints para lookup O(1).
+     */
+    private Set<String> buildExistingFingerprints(Long userId, List<ParsedRow> rows) {
+        if (rows.isEmpty()) return new HashSet<>();
+
+        LocalDate from = rows.stream().map(ParsedRow::date).min(LocalDate::compareTo).get();
+        LocalDate to   = rows.stream().map(ParsedRow::date).max(LocalDate::compareTo).get();
+
+        Set<String> fps = new HashSet<>();
+        transactionRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, from, to)
+                .forEach(t -> fps.add(fingerprint(t.getDate(), t.getDescription(), t.getAmount())));
+        return fps;
+    }
+
+    /** Chave de identidade de uma transação: data|descrição(lowercase)|valor absoluto */
+    private static String fingerprint(LocalDate date, String description, BigDecimal amount) {
+        return date + "|" + description.toLowerCase() + "|" + amount.toPlainString();
+    }
 
     private Category resolveCategory(CategoryMatcher.Match match, User user,
                                      Map<String, Category> cache) {

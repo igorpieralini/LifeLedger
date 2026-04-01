@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
 import { environment } from '@env/environment';
 import { Goal, GoalRequest, GoalStatus, ProgressUpdateRequest, SubGoal, SubGoalRequest } from '../models/goal.model';
-import { MOCK_GOALS } from '../mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class GoalService {
@@ -20,15 +18,11 @@ export class GoalService {
 
   findAll(year?: number) {
     const params = year ? new HttpParams().set('year', year) : undefined;
-    return this.http.get<Goal[]>(this.api, { params }).pipe(
-      catchError(() => of(year ? MOCK_GOALS.filter(g => g.year === year) : MOCK_GOALS))
-    );
+    return this.http.get<Goal[]>(this.api, { params });
   }
 
   findById(id: number) {
-    return this.http.get<Goal>(`${this.api}/${id}`).pipe(
-      catchError(() => of(MOCK_GOALS.find(g => g.id === id) ?? MOCK_GOALS[0]))
-    );
+    return this.http.get<Goal>(`${this.api}/${id}`);
   }
 
   update(id: number, request: GoalRequest) {

@@ -1,5 +1,6 @@
 package com.lifeledger.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,6 +18,7 @@ import java.util.Map;
  * Keeps controllers clean — they just throw, this class handles the response shape.
  */
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     record ErrorResponse(LocalDateTime timestamp, int status, String error, Object message) {}
@@ -48,7 +50,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status, Object message) {

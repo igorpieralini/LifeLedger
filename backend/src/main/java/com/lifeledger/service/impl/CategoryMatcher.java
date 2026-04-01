@@ -22,11 +22,15 @@ public final class CategoryMatcher {
                 "REMUNERACAO", "REMUNERAÇÃO", "PROVENTO", "FOLHA PGTO"),
 
         new Rule("Investimentos",      "#0d9488", "trending_up",
-                "RESGATE", "RENDIMENTO", "APLICACAO", "APLICAÇÃO",
+                "RESGATE", "RENDIMENTO", "REND PAGO",
+                "APLICACAO", "APLICAÇÃO",
+                "COR OPERACOES",        // operações na B3 (Itaú)
                 "INVEST", "FUNDO ", "CDB ", "TESOURO"),
 
         new Rule("Outros Ganhos",      "#059669", "attach_money",
                 "PIX RECEBIDO", "TRANSFERENCIA RECEBIDA", "TED RECEBIDO",
+                "PIX ORIGEM CARTAO",    // estorno/cashback de cartão (Itaú)
+                "DEP DIN",              // depósito em dinheiro no ATM (Itaú)
                 "DEPOSITO", "REEMBOLSO", "DEVOLUCAO"),
 
         // ── Alimentação ────────────────────────────────────────────────────────
@@ -44,8 +48,8 @@ public final class CategoryMatcher {
 
         // ── Transporte ─────────────────────────────────────────────────────────
         new Rule("App de Transporte",  "#6366f1", "local_taxi",
-                "UBER", "99POP", "99PAY", "TAXI", "CABIFY",
-                "INDRIVER", "BOLT "),
+                "UBER", "99POP", "99PAY", "99 TECNO", "99FOOD",
+                "TAXI", "CABIFY", "INDRIVER", "BOLT "),
 
         new Rule("Combustível",        "#4f46e5", "local_gas_station",
                 "POSTO ", "COMBUSTIVEL", "GASOLINA", "ALCOOL POSTO",
@@ -115,9 +119,14 @@ public final class CategoryMatcher {
                 "UNIV ", "UNIVERSIDADE", "COLEGIO"),
 
         // ── Financeiro ─────────────────────────────────────────────────────────
+        new Rule("Fatura Cartão",      "#fb7185", "credit_card",
+                "FATURA PAGA", "PAGAMENTO FATURA", "PAG FATURA",
+                "FATURA CARTAO", "FATURA CARTÃO"),
+
         new Rule("Taxas Bancárias",    "#f43f5e", "account_balance",
-                "TARIFA", "JUROS", "IOF ", "TAXA ",
-                "ANUIDADE", "SEGURO CARTAO")
+                "TARIFA", "JUROS", "IOF", "TAXA ",    // "IOF" sem espaço — aparece isolado no extrato Itaú
+                "ANUIDADE", "SEGURO CARTAO", "STARK BANK",
+                "CONSORCIO", "CONSÓRCIO")
     );
 
     public static Match match(String description) {

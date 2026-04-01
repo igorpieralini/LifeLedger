@@ -36,15 +36,25 @@ public final class ItauPdfParser {
 
     /** Linhas a ignorar (case-insensitive substring). */
     private static final List<String> SKIP_KEYWORDS = List.of(
+            // Saldos / totalizadores
             "SALDO DO DIA",
             "SALDO ANTERIOR",
             "SALDO DISPONIVEL",
+            "SALDO EM CONTA",
+            // Cabeçalho da tabela do extrato Itaú
+            "LANCAMENTOS",
+            "LANÇAMENTOS",
+            "EMITIDO EM",
+            // Limites
             "LIMITE DE CREDITO",
             "LIMITE DISPONIVEL",
+            // Dados da conta
             "AGENCIA",
+            "AGÊNCIA",
             "CONTA CORRENTE",
             "BANCO ITAU",
             "BANCO ITAÚ",
+            // Metadados do documento
             "EXTRATO",
             "PERIODO",
             "PERÍODO",
