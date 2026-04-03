@@ -55,6 +55,34 @@ export interface FinanceSummary {
   expensesByCategory: CategoryBreakdown[];
 }
 
+export interface CategoryLimitStatus {
+  categoryName: string;
+  limitAmount: number;
+  spent: number;
+  remaining: number;
+  usedPercentage: number;
+  exceeded: boolean;
+}
+
+export interface FinanceLimits {
+  year: number;
+  month: number;
+  categories: CategoryLimitStatus[];
+}
+
+export interface CategoryLimit {
+  id: number;
+  categoryName: string;
+  limitAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryLimitRequest {
+  categoryName: string;
+  limitAmount: number;
+}
+
 export interface Page<T> {
   content: T[];
   totalElements: number;

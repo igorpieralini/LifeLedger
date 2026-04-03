@@ -7,16 +7,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
 import { GoalService } from '../../../core/services/goal.service';
 import { Goal } from '../../../core/models/goal.model';
+import { SelectNativeComponent } from '../../../shared/components/atoms';
 
 @Component({
   selector: 'll-goal-form-dialog',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatDialogModule,
             MatFormFieldModule, MatInputModule, MatButtonModule,
-            MatDatepickerModule, MatNativeDateModule, MatSelectModule],
+            MatDatepickerModule, MatNativeDateModule, SelectNativeComponent],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Editar meta' : 'Nova meta' }}</h2>
     <mat-dialog-content>
@@ -33,19 +33,21 @@ import { Goal } from '../../../core/models/goal.model';
           <textarea matInput formControlName="description" rows="3"></textarea>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Ano</mat-label>
-          <mat-select formControlName="year">
-            <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <ll-select-native [control]="form.controls.year" label="Ano">
+          <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+        </ll-select-native>
+
+        <ll-select-native [control]="form.controls.financial" label="Tipo da meta">
+          <option [ngValue]="false">Não financeira</option>
+          <option [ngValue]="true">Financeira</option>
+        </ll-select-native>
 
         <mat-form-field appearance="outline">
           <mat-label>Valor alvo (opcional)</mat-label>
           <input matInput formControlName="targetValue" type="number" min="0">
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full">
+        <mat-form-field appearance="outline">
           <mat-label>Prazo (opcional)</mat-label>
           <input matInput [matDatepicker]="picker" formControlName="deadline">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -65,7 +67,15 @@ import { Goal } from '../../../core/models/goal.model';
     </mat-dialog-actions>
   `,
   styles: [`
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; padding-top: 0.5rem; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1rem;
+      padding-top: 0.5rem;
+    }
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
     .full { grid-column: 1 / -1; }
     mat-form-field { width: 100%; }
     .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
@@ -82,6 +92,7 @@ export class GoalFormDialogComponent implements OnInit {
     title:       ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
     year:        [new Date().getFullYear(), Validators.required],
+    financial:   [false],
     targetValue: [null as number | null],
     deadline:    [null as Date | null]
   });
@@ -99,7 +110,7 @@ export class GoalFormDialogComponent implements OnInit {
       const g = this.data.goal;
       this.form.patchValue({
         title: g.title, description: g.description ?? '',
-        year: g.year, targetValue: g.targetValue ?? null,
+        year: g.year, financial: g.financial ?? false, targetValue: g.targetValue ?? null,
         deadline: g.deadline ? new Date(g.deadline) : null
       });
     }
@@ -114,6 +125,7 @@ export class GoalFormDialogComponent implements OnInit {
       title: val.title,
       description: val.description || undefined,
       year: val.year,
+      financial: !!val.financial,
       targetValue: val.targetValue || undefined,
       deadline: val.deadline ? (val.deadline as Date).toISOString().split('T')[0] : undefined
     };

@@ -1,4 +1,4 @@
-<div class="finance-root" [class.panel-open]="panelOpen()">
+<div class="finance-root">
 
   <!-- ═══════════════════ CONTEÚDO PRINCIPAL ═══════════════════ -->
   <div class="finance-main">
@@ -6,7 +6,7 @@
     <!-- Cabeçalho -->
     <header class="finance-header">
       <div class="finance-header__info">
-        <h1>Transações</h1>
+        <h1>Histórico de Transações</h1>
         <p class="text-secondary">{{ total() }} registros encontrados</p>
       </div>
       <div class="finance-header__controls">
@@ -21,46 +21,61 @@
       </div>
     </header>
 
+    <div class="limits-alert card" *ngIf="exceededLimits().length">
+      <div class="limits-alert__head">
+        <mat-icon>warning_amber</mat-icon>
+        <strong>Alerta de limite mensal</strong>
+      </div>
+      <p class="text-secondary">
+        Você ultrapassou o limite em {{ exceededLimits().length }} categoria{{ exceededLimits().length > 1 ? 's' : '' }} neste mês.
+      </p>
+      <div class="limits-alert__chips">
+        <span class="chip" *ngFor="let c of exceededLimits()">
+          {{ c.categoryName }}: {{ c.remaining | currency:'BRL':'symbol':'1.0-0' }}
+        </span>
+      </div>
+    </div>
+
     <!-- Cartões de resumo (página atual) -->
     <div class="stats-row" *ngIf="!loading() && transactions().length">
 
-      <div class="stat-card" style="--card-accent: var(--indigo); --card-accent-dim: var(--indigo-dim)">
-        <div class="stat-icon"><mat-icon>receipt_long</mat-icon></div>
-        <span class="stat-label">Total</span>
-        <span class="stat-value">{{ total() }}</span>
-        <span class="stat-sub">transações</span>
-      </div>
+        <div class="stat-card" style="--card-accent: var(--indigo); --card-accent-dim: var(--indigo-dim)">
+          <div class="stat-icon"><mat-icon>receipt_long</mat-icon></div>
+          <span class="stat-label">Total</span>
+          <span class="stat-value">{{ total() }}</span>
+          <span class="stat-sub">transações</span>
+        </div>
 
-      <div class="stat-card" style="--card-accent: var(--emerald); --card-accent-dim: var(--emerald-dim)">
-        <div class="stat-icon"><mat-icon>south_west</mat-icon></div>
-        <span class="stat-label">Receitas</span>
-        <span class="stat-value text-emerald">
-          {{ pageSummary().income | currency:'BRL':'symbol':'1.0-0' }}
-        </span>
-        <span class="stat-sub">nesta página</span>
-      </div>
+        <div class="stat-card" style="--card-accent: var(--emerald); --card-accent-dim: var(--emerald-dim)">
+          <div class="stat-icon"><mat-icon>south_west</mat-icon></div>
+          <span class="stat-label">Receitas</span>
+          <span class="stat-value text-emerald">
+            {{ pageSummary().income | currency:'BRL':'symbol':'1.0-0' }}
+          </span>
+          <span class="stat-sub">nesta página</span>
+        </div>
 
-      <div class="stat-card" style="--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)">
-        <div class="stat-icon"><mat-icon>north_east</mat-icon></div>
-        <span class="stat-label">Despesas</span>
-        <span class="stat-value text-rose">
-          {{ pageSummary().expense | currency:'BRL':'symbol':'1.0-0' }}
-        </span>
-        <span class="stat-sub">nesta página</span>
-      </div>
+        <div class="stat-card" style="--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)">
+          <div class="stat-icon"><mat-icon>north_east</mat-icon></div>
+          <span class="stat-label">Despesas</span>
+          <span class="stat-value text-rose">
+            {{ pageSummary().expense | currency:'BRL':'symbol':'1.0-0' }}
+          </span>
+          <span class="stat-sub">nesta página</span>
+        </div>
 
-      <div class="stat-card"
-           [style.--card-accent]="pageSummary().income >= pageSummary().expense ? 'var(--emerald)' : 'var(--rose)'"
-           [style.--card-accent-dim]="pageSummary().income >= pageSummary().expense ? 'var(--emerald-dim)' : 'var(--rose-dim)'">
-        <div class="stat-icon"><mat-icon>balance</mat-icon></div>
-        <span class="stat-label">Saldo</span>
-        <span class="stat-value"
-              [class.text-emerald]="pageSummary().income >= pageSummary().expense"
-              [class.text-rose]="pageSummary().income < pageSummary().expense">
-          {{ (pageSummary().income - pageSummary().expense) | currency:'BRL':'symbol':'1.0-0' }}
-        </span>
-        <span class="stat-sub">nesta página</span>
-      </div>
+        <div class="stat-card"
+             [style.--card-accent]="pageSummary().income >= pageSummary().expense ? 'var(--emerald)' : 'var(--rose)'"
+             [style.--card-accent-dim]="pageSummary().income >= pageSummary().expense ? 'var(--emerald-dim)' : 'var(--rose-dim)'">
+          <div class="stat-icon"><mat-icon>balance</mat-icon></div>
+          <span class="stat-label">Saldo</span>
+          <span class="stat-value"
+                [class.text-emerald]="pageSummary().income >= pageSummary().expense"
+                [class.text-rose]="pageSummary().income < pageSummary().expense">
+            {{ (pageSummary().income - pageSummary().expense) | currency:'BRL':'symbol':'1.0-0' }}
+          </span>
+          <span class="stat-sub">nesta página</span>
+        </div>
 
     </div>
 
@@ -177,95 +192,3 @@
 
   </div>
   <!-- /finance-main -->
-
-  <!-- ═══════════════════ PAINEL LATERAL ═══════════════════ -->
-  <aside class="tx-panel" [class.open]="panelOpen()" role="dialog" aria-modal="true">
-
-    <div class="tx-panel__header">
-      <div>
-        <h2>{{ editingTx() ? 'Editar transação' : 'Nova transação' }}</h2>
-        <p class="text-muted" style="font-size:.8rem; margin-top:.2rem">
-          {{ editingTx() ? 'Atualize os dados da transação' : 'Preencha os dados para registrar' }}
-        </p>
-      </div>
-      <button class="icon-btn" (click)="closePanel()" aria-label="Fechar painel">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-
-    <div class="tx-panel__body">
-      <form [formGroup]="form" class="panel-form">
-
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo</mat-label>
-          <mat-select formControlName="type">
-            <mat-option value="INCOME">Receita</mat-option>
-            <mat-option value="EXPENSE">Despesa</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Valor (R$)</mat-label>
-          <input matInput type="number" formControlName="amount" min="0.01" step="0.01"
-                 placeholder="0,00">
-          <mat-error>Valor deve ser maior que zero</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Descrição</mat-label>
-          <input matInput formControlName="description" maxlength="255"
-                 placeholder="Ex: Aluguel, Salário...">
-          <mat-error>Descrição é obrigatória</mat-error>
-        </mat-form-field>
-
-        <div class="native-field">
-          <label class="native-label">Data <span class="native-req">*</span></label>
-          <input type="date" class="native-input" formControlName="date">
-        </div>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Categoria</mat-label>
-          <mat-select formControlName="categoryId">
-            <mat-option [value]="null">Sem categoria</mat-option>
-            <mat-option *ngFor="let c of categories()" [value]="c.id">
-              {{ c.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Observações</mat-label>
-          <textarea matInput formControlName="notes" rows="3"
-                    placeholder="Informações adicionais (opcional)"></textarea>
-        </mat-form-field>
-
-        <div class="error-msg" *ngIf="panelError()">
-          <mat-icon>error_outline</mat-icon> {{ panelError() }}
-        </div>
-
-      </form>
-    </div>
-
-    <div class="tx-panel__footer">
-      <button class="btn-ghost" (click)="closePanel()">Cancelar</button>
-      <button class="btn-primary" (click)="submit()" [disabled]="panelLoading()">
-        <mat-icon *ngIf="panelLoading()" style="animation: spin .8s linear infinite">
-          hourglass_empty
-        </mat-icon>
-        {{ editingTx() ? 'Salvar alterações' : 'Registrar' }}
-      </button>
-    </div>
-
-  </aside>
-
-  <!-- Overlay escuro ao abrir o painel lateral -->
-  <div class="panel-overlay" [class.visible]="panelOpen()" (click)="closePanel()"></div>
-
-</div>
-
-<!-- ═══════════════════ MODAL IMPORTAR CSV ═══════════════════ -->
-<div class="import-overlay" [class.visible]="importOpen()" (click)="onImportDone(false)">
-  <div class="import-modal" (click)="$event.stopPropagation()" *ngIf="importOpen()">
-    <ll-csv-import-dialog (done)="onImportDone($event)"></ll-csv-import-dialog>
-  </div>
-</div>

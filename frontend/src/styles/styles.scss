@@ -42,6 +42,7 @@ $ll-theme   : mat.m2-define-dark-theme((
   --emerald-dim   : rgba(16, 185, 129, 0.12);
   --rose          : #f43f5e;    // despesas, erro, negativo
   --rose-dim      : rgba(244, 63, 94, 0.12);
+  --danger        : var(--rose);
   --amber         : #f59e0b;    // avisos, em andamento
   --amber-dim     : rgba(245, 158, 11, 0.12);
   --sky           : #38bdf8;    // info, neutro
@@ -100,6 +101,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+ll-root,
+ll-shell {
+  display: block;
+  height: 100%;
 }
 
 // ── Tipografia ────────────────────────────────────────────────────────────────
@@ -193,6 +200,8 @@ h4 { font-size: 0.875rem; font-weight: 600; }
   flex-shrink    : 0;
 
   .page-header__left {
+    flex: 1;
+    min-width: 0;
     h1 { color: var(--text-primary); }
     p  { color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.25rem; }
   }
@@ -202,16 +211,28 @@ h4 { font-size: 0.875rem; font-weight: 600; }
     align-items: center;
     gap        : 0.75rem;
     flex-shrink: 0;
+    flex-wrap  : wrap;
+  }
+
+  @media (max-width: 540px) {
+    flex-wrap: wrap;
+
+    .page-header__actions {
+      width: 100%;
+    }
   }
 }
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
-.progress-track {
+.progress-track,
+.progress-bar-wrapper {
   width        : 100%;
   height       : 5px;
   background   : var(--bg-subtle);
   border-radius: 99px;
   overflow     : hidden;
+
+  &.big { height: 10px; }
 
   .progress-fill {
     height       : 100%;
@@ -219,10 +240,12 @@ h4 { font-size: 0.875rem; font-weight: 600; }
     background   : var(--grad-indigo);
     transition   : width var(--transition-slow);
 
-    &.fill-emerald { background: var(--grad-emerald); }
-    &.fill-rose    { background: var(--grad-rose); }
-    &.fill-amber   { background: var(--grad-amber); }
-    &.fill-sky     { background: var(--grad-sky); }
+    &.fill-emerald,
+    &.success { background: var(--grad-emerald); }
+    &.fill-rose { background: var(--grad-rose); }
+    &.fill-amber,
+    &.warning  { background: var(--grad-amber); }
+    &.fill-sky  { background: var(--grad-sky); }
   }
 }
 
@@ -296,8 +319,53 @@ h4 { font-size: 0.875rem; font-weight: 600; }
 .mat-mdc-form-field input, .mat-mdc-form-field textarea {
   color: var(--text-primary) !important;
 }
+
+.mat-mdc-form-field select[matNativeControl] {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+.mat-mdc-form-field select[matNativeControl] option {
+  background: var(--bg-overlay) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-form-field select[matNativeControl] option:checked {
+  background: color-mix(in srgb, var(--indigo) 28%, var(--bg-overlay)) !important;
+  color: var(--text-primary) !important;
+}
 .mat-mdc-form-field .mat-mdc-floating-label {
   color: var(--text-muted) !important;
+}
+
+/* Estado inválido mais suave, sem vermelho agressivo */
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-floating-label,
+.mat-mdc-form-field .mdc-text-field--invalid ~ .mat-mdc-form-field-focus-overlay,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-floating-label {
+  color: var(--amber) !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--outlined .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--outlined .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--outlined .mdc-notched-outline__trailing,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__trailing {
+  border-color: color-mix(in srgb, var(--amber) 35%, var(--border-strong)) !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--focused .mdc-notched-outline__trailing,
+.mat-mdc-form-field .mdc-text-field--invalid.mdc-text-field--focused .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-text-field--invalid.mdc-text-field--focused .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-text-field--invalid.mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: var(--amber) !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-text-field--outlined.mdc-text-field--focused,
+.mat-mdc-form-field .mdc-text-field--invalid.mdc-text-field--focused {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16) !important;
 }
 
 // Buttons
@@ -313,9 +381,22 @@ h4 { font-size: 0.875rem; font-weight: 600; }
 // Dialog
 .mat-mdc-dialog-container {
   --mdc-dialog-container-color: var(--bg-overlay);
-  border: 1px solid var(--border-strong);
+  border: 1px solid color-mix(in srgb, var(--indigo-light) 22%, var(--border-strong));
   border-radius: var(--radius-lg) !important;
+  outline: 1px solid rgba(255, 255, 255, 0.04);
+  overflow: hidden;
   box-shadow: var(--shadow-lg) !important;
+}
+
+// Select overlay (CDK is rendered outside component tree)
+.compact-select-panel {
+  background: var(--bg-overlay) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-height: min(240px, calc(100vh - 96px)) !important;
+  overflow: auto !important;
+  z-index: 9999 !important;
 }
 
 .mat-mdc-dialog-title { color: var(--text-primary) !important; font-weight: 700 !important; }
@@ -327,6 +408,7 @@ h4 { font-size: 0.875rem; font-weight: 600; }
   border-radius: var(--radius-md) !important;
   box-shadow   : var(--shadow-md) !important;
   min-width    : 160px !important;
+  z-index      : 9999 !important;
 }
 
 .mat-mdc-menu-item {
@@ -337,8 +419,53 @@ h4 { font-size: 0.875rem; font-weight: 600; }
 
 // Select
 .mat-mdc-select-value { color: var(--text-primary) !important; }
-.mat-mdc-option { color: var(--text-secondary) !important; }
-.mat-mdc-option.mdc-list-item--selected { color: var(--indigo-light) !important; }
+
+// Select panel (dropdown overlay) — acima de tudo inclusive modals
+.mat-mdc-select-panel {
+  background: var(--bg-overlay) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  z-index: 9999 !important;
+}
+
+.mat-mdc-select-panel.ng-animating {
+  z-index: 9999 !important;
+}
+
+.mat-mdc-option {
+  color: var(--text-secondary) !important;
+  background: var(--bg-overlay) !important;
+  
+  &:hover {
+    background: var(--bg-subtle) !important;
+    color: var(--text-primary) !important;
+  }
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  color: var(--indigo-light) !important;
+  background: var(--indigo-dim) !important;
+}
+
+// Autocomplete panel
+.mat-mdc-autocomplete-panel {
+  background: var(--bg-overlay) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  z-index: 9999 !important;
+}
+
+.mat-mdc-optgroup {
+  color: var(--text-muted) !important;
+  background: var(--bg-overlay) !important;
+}
+
+.mat-mdc-optgroup-label {
+  color: var(--text-muted) !important;
+  background: var(--bg-base) !important;
+}
 
 // Snackbar
 .mat-mdc-snack-bar-container {
@@ -346,8 +473,8 @@ h4 { font-size: 0.875rem; font-weight: 600; }
   border: 1px solid var(--border-strong) !important;
 }
 
-// Error message vermelho mais suave
-.mat-mdc-form-field-error { color: var(--rose) !important; }
+// Error message mais suave, alinhada ao tema escuro
+.mat-mdc-form-field-error { color: var(--amber) !important; }
 
 // Loading spinner
 .mat-mdc-progress-spinner circle {
@@ -359,3 +486,74 @@ h4 { font-size: 0.875rem; font-weight: 600; }
   color: var(--text-muted) !important;
   &:hover { color: var(--text-primary) !important; background: var(--bg-subtle) !important; }
 }
+
+// Dialog customizado — centralizado na tela
+.modal-dialog {
+  max-width: min(520px, calc(100vw - 24px)) !important;
+
+  .mat-mdc-dialog-container {
+    margin: 0 !important;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: var(--radius-lg) !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+}
+
+/* Dialog content scrollable */
+.mat-mdc-dialog-content {
+  max-height: min(65vh, 560px) !important;
+  overflow-y: auto !important;
+}
+
+/* Garantia de centralizacao real do dialog na viewport */
+.cdk-overlay-container {
+  z-index: 2100 !important;
+}
+
+/* Modal Dialog — centralização estável sem afetar overlays conectados */
+.cdk-overlay-pane.modal-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 3000 !important;
+}
+
+/* Mobile: dialog ocupa largura total com margens mínimas */
+@media (max-width: 540px) {
+  .cdk-overlay-pane.modal-dialog {
+    max-width: calc(100vw - 16px) !important;
+    width: calc(100vw - 16px) !important;
+  }
+
+  .modal-dialog .mdc-dialog__surface {
+    border-radius: var(--radius-md) !important;
+    max-height: 90vh !important;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: 60vh !important;
+    padding: 0 1rem !important;
+  }
+}
+
+/* Backdrop do modal */
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  background: rgba(3, 6, 12, 0.78) !important;
+  backdrop-filter: blur(2px);
+  z-index: 2998 !important;
+}
+
+/* Selects e menus ficam sempre no topo, mesmo dentro do modal */
+.cdk-overlay-pane .mat-mdc-select-panel,
+.cdk-overlay-pane .mat-mdc-autocomplete-panel,
+.cdk-overlay-pane .mat-mdc-menu-panel,
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-menu-panel {
+  z-index: 9999 !important;
+}
+

@@ -6,6 +6,7 @@ export interface Goal {
   title: string;
   description?: string;
   year: number;
+  financial: boolean;
   targetValue?: number;
   currentValue: number;
   progress: number;
@@ -35,6 +36,7 @@ export interface GoalRequest {
   title: string;
   description?: string;
   year: number;
+  financial?: boolean;
   targetValue?: number;
   deadline?: string;
 }

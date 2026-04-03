@@ -27,6 +27,7 @@
   font-weight  : 500;
   color        : var(--text-secondary);
   text-transform: capitalize;
+  white-space  : nowrap;
 
   mat-icon { font-size: 0.9rem; width: 0.9rem; height: 0.9rem; }
 }
@@ -45,7 +46,7 @@
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
-    overflow-y: auto;
+    overflow-y           : auto;
   }
 }
 
@@ -55,7 +56,6 @@
   overflow      : hidden;
   gap           : 0;
 
-  // Sobrescreve o padding do .card global para controlar internamente
   &.card { padding: 0; }
 }
 
@@ -85,7 +85,7 @@
   &.small { font-size: 0.75rem; }
 }
 
-// Goals list
+// ── Goals list ────────────────────────────────────────────────────────────────
 .goal-list {
   display       : flex;
   flex-direction: column;
@@ -142,7 +142,7 @@
   }
 }
 
-// Transactions list
+// ── Transactions list ─────────────────────────────────────────────────────────
 .tx-list {
   display       : flex;
   flex-direction: column;
@@ -201,7 +201,7 @@
   flex-shrink: 0;
 }
 
-// Empty states
+// ── Empty states ──────────────────────────────────────────────────────────────
 .empty-state {
   display       : flex;
   flex-direction: column;
@@ -214,7 +214,7 @@
   p { font-size: 0.85rem; }
 }
 
-// Loading
+// ── Loading ───────────────────────────────────────────────────────────────────
 .dash-loading {
   display        : flex;
   flex-direction : column;

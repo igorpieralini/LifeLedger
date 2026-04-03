@@ -1,59 +1,20 @@
-<div class="app-shell" [class.collapsed]="!open()">
+<div class="app-shell" [class.collapsed]="collapsed">
 
-  <!-- ═══════════════ SIDEBAR ═══════════════ -->
-  <aside class="sidebar">
+  <ll-sidebar (collapsedChange)="onCollapsedChange($event)"></ll-sidebar>
 
-    <!-- Logo -->
-    <div class="sidebar-logo">
-      <div class="logo-mark">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity=".9"/>
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
+  <!-- Mobile backdrop — only rendered when nav is open, hidden on desktop via CSS -->
+  <div class="nav-backdrop" *ngIf="!collapsed" (click)="closeNav()" aria-hidden="true"></div>
+
+  <div class="main-wrapper">
+    <ll-header></ll-header>
+
+    <main class="main-area">
+      <div class="main-inner">
+        <router-outlet />
       </div>
-      <span class="logo-text" *ngIf="open()">LifeLedger</span>
-      <button class="collapse-btn" (click)="toggle()"
-              [title]="open() ? 'Recolher menu' : 'Expandir menu'">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round">
-          <polyline [attr.points]="open() ? '15 18 9 12 15 6' : '9 18 15 12 9 6'"></polyline>
-        </svg>
-      </button>
-    </div>
+    </main>
 
-    <!-- Nav -->
-    <nav class="sidebar-nav">
-      <ng-container *ngFor="let group of navGroups; let first = first">
-
-        <!-- Group divider + label -->
-        <div class="nav-group-header" *ngIf="group.label" [class.collapsed]="!open()">
-          <span class="nav-group-label" *ngIf="open()">{{ group.label }}</span>
-          <div class="nav-group-line" *ngIf="!open()"></div>
-        </div>
-
-        <a *ngFor="let item of group.items"
-           class="nav-item"
-           [routerLink]="item.route"
-           routerLinkActive="active"
-           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-           [title]="!open() ? item.label : ''">
-          <span class="nav-icon">
-            <mat-icon>{{ item.icon }}</mat-icon>
-          </span>
-          <span class="nav-label" *ngIf="open()">{{ item.label }}</span>
-        </a>
-
-      </ng-container>
-    </nav>
-
-  </aside>
-
-  <!-- ═══════════════ MAIN ═══════════════ -->
-  <main class="main-area">
-    <div class="main-inner">
-      <router-outlet />
-    </div>
-  </main>
+    <ll-footer></ll-footer>
+  </div>
 
 </div>

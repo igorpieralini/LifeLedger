@@ -10,13 +10,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FinanceService } from '../../../core/services/finance.service';
 import { Category, Transaction } from '../../../core/models/finance.model';
+import { SelectNativeComponent } from '../../../shared/components/atoms';
 
 @Component({
   selector: 'll-transaction-form-dialog',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatDialogModule,
             MatFormFieldModule, MatInputModule, MatButtonModule,
-            MatSelectModule, MatDatepickerModule, MatNativeDateModule],
+            MatSelectModule, MatDatepickerModule, MatNativeDateModule,
+            SelectNativeComponent],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Editar transação' : 'Nova transação' }}</h2>
     <mat-dialog-content>
@@ -49,15 +51,12 @@ import { Category, Transaction } from '../../../core/models/finance.model';
           <mat-datepicker #dp></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Categoria</mat-label>
-          <mat-select formControlName="categoryId">
-            <mat-option [value]="null">Sem categoria</mat-option>
-            <mat-option *ngFor="let c of categories()" [value]="c.id">
-              {{ c.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        <ll-select-native [control]="form.controls.categoryId" label="Categoria">
+          <option [ngValue]="null">Sem categoria</option>
+          <option *ngFor="let c of categories()" [ngValue]="c.id">
+            {{ c.name }}
+          </option>
+        </ll-select-native>
 
         <mat-form-field appearance="outline" class="full">
           <mat-label>Observações</mat-label>
@@ -76,7 +75,15 @@ import { Category, Transaction } from '../../../core/models/finance.model';
     </mat-dialog-actions>
   `,
   styles: [`
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; padding-top: 0.5rem; min-width: 460px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1rem;
+      padding-top: 0.5rem;
+    }
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
     .full { grid-column: 1 / -1; }
     mat-form-field { width: 100%; }
     .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
@@ -127,7 +134,7 @@ export class TransactionFormDialogComponent implements OnInit {
       amount:      val.amount,
       description: val.description,
       date:        (val.date as Date).toISOString().split('T')[0],
-      categoryId:  val.categoryId || undefined,
+      categoryId:  val.categoryId != null ? Number(val.categoryId) : undefined,
       notes:       val.notes || undefined
     };
 

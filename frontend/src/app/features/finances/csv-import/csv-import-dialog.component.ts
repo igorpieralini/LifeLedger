@@ -1,7 +1,9 @@
-import { Component, Output, EventEmitter, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef } from '@angular/material/dialog';
+import { InputFileComponent } from '../../../shared/components/atoms';
 import { FinanceService } from '../../../core/services/finance.service';
 import { CsvImportResult } from '../../../core/models/finance.model';
 
@@ -11,13 +13,11 @@ type FileType = 'csv' | 'pdf' | null;
 @Component({
   selector: 'll-csv-import-dialog',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, MatIconModule, MatButtonModule],
+  imports: [CommonModule, CurrencyPipe, MatIconModule, MatButtonModule, InputFileComponent],
   templateUrl: './csv-import-dialog.component.html',
   styleUrl: './csv-import-dialog.component.scss'
 })
 export class CsvImportDialogComponent {
-  @Output() done = new EventEmitter<boolean>();
-
   step      = signal<Step>('pick');
   dragOver  = signal(false);
   fileName  = signal('');
@@ -25,7 +25,10 @@ export class CsvImportDialogComponent {
   result    = signal<CsvImportResult | null>(null);
   errorMsg  = signal('');
 
-  constructor(private financeService: FinanceService) {}
+  constructor(
+    private financeService: FinanceService,
+    private dialogRef: MatDialogRef<CsvImportDialogComponent>
+  ) {}
 
   onDragOver(e: DragEvent) { e.preventDefault(); this.dragOver.set(true); }
   onDragLeave()            { this.dragOver.set(false); }
@@ -37,10 +40,8 @@ export class CsvImportDialogComponent {
     if (file) this.upload(file);
   }
 
-  onFileSelect(e: Event) {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) this.upload(file);
-    (e.target as HTMLInputElement).value = '';
+  onFileSelect(file: File) {
+    this.upload(file);
   }
 
   private upload(file: File) {
@@ -71,13 +72,32 @@ export class CsvImportDialogComponent {
     });
   }
 
-  confirm() { this.done.emit(true); }
+  confirm() { this.dialogRef.close(true); }
   reset()   { this.step.set('pick'); this.fileName.set(''); this.fileType.set(null); this.result.set(null); }
-  close()   { this.done.emit(false); }
+  close()   { this.dialogRef.close(false); }
 
   categoryEntries() {
     const r = this.result();
     if (!r) return [];
     return Object.entries(r.byCategory).sort((a, b) => b[1] - a[1]);
+  }
+
+  formatCurrencyCompact(value: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      notation: 'compact',
+      compactDisplay: 'short',
+      maximumFractionDigits: 2
+    }).format(value);
+  }
+
+  formatCurrencyFull(value: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
   }
 }

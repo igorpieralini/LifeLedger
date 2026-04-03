@@ -4,9 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { InputNumberComponent } from '../../../shared/components/atoms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { GoalService } from '../../../core/services/goal.service';
 import { Goal, GoalStatus, SubGoal } from '../../../core/models/goal.model';
@@ -16,8 +14,8 @@ import { GoalFormDialogComponent } from '../goal-form/goal-form-dialog.component
   selector: 'll-goal-detail',
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule, DatePipe,
-            MatIconModule, MatButtonModule, MatFormFieldModule,
-            MatInputModule, MatSelectModule, MatDialogModule],
+            MatIconModule, MatButtonModule, MatDialogModule,
+            InputNumberComponent],
   templateUrl: './goal-detail.component.html',
   styleUrl: './goal-detail.component.scss'
 })
@@ -65,7 +63,11 @@ export class GoalDetailComponent implements OnInit {
 
   openEdit() {
     const ref = this.dialog.open(GoalFormDialogComponent, {
-      width: '520px', data: { goal: this.goal() }
+      width: '520px',
+      maxWidth: 'calc(100vw - 24px)',
+      disableClose: false,
+      panelClass: 'modal-dialog',
+      data: { goal: this.goal() }
     });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.goalService.findById(this.goal()!.id).subscribe(g => this.goal.set(g));
@@ -77,6 +79,11 @@ export class GoalDetailComponent implements OnInit {
   }
 
   statusClass(s: string) {
-    return 'badge-' + ({ IN_PROGRESS: 'info', COMPLETED: 'success', DELAYED: 'danger', CANCELLED: 'muted' }[s] ?? 'muted');
+    return 'badge-' + (({
+      IN_PROGRESS: 'indigo',
+      COMPLETED:   'emerald',
+      DELAYED:     'rose',
+      CANCELLED:   'muted'
+    } as any)[s] ?? 'muted');
   }
 }

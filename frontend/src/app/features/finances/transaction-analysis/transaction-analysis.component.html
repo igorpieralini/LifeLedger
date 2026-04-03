@@ -1,0 +1,97 @@
+<div class="analysis-page">
+
+  <div class="page-header">
+    <div>
+      <div class="breadcrumb">
+        <a routerLink="/finances/history" class="back-link">
+          <mat-icon>arrow_back</mat-icon> Histórico
+        </a>
+      </div>
+      <h1>Análises Financeiras</h1>
+      <p class="text-muted">Valores gerais do histórico completo (todos os anos e meses)</p>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading(); else loadingTpl">
+    <div class="grid-4 summary-cards" *ngIf="summary().totalTransactions > 0">
+      <div class="stat-card" style="--card-accent: var(--indigo); --card-accent-dim: var(--indigo-dim)">
+        <div class="stat-icon">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <span class="stat-label">Total de transações</span>
+        <span class="stat-value">{{ summary().totalTransactions }}</span>
+      </div>
+      <div class="stat-card" style="--card-accent: var(--emerald); --card-accent-dim: var(--emerald-dim)">
+        <div class="stat-icon">
+          <mat-icon>south_west</mat-icon>
+        </div>
+        <span class="stat-label">Receitas (histórico)</span>
+        <span class="stat-value text-emerald">{{ summary().totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="stat-card" style="--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)">
+        <div class="stat-icon">
+          <mat-icon>north_east</mat-icon>
+        </div>
+        <span class="stat-label">Despesas (histórico)</span>
+        <span class="stat-value text-rose">{{ summary().totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="stat-card"
+           [style]="summary().balance >= 0
+             ? '--card-accent: var(--indigo); --card-accent-dim: var(--indigo-dim)'
+             : '--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)'">
+        <div class="stat-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <span class="stat-label">Saldo geral</span>
+        <span class="stat-value" [class.text-emerald]="summary().balance >= 0" [class.text-rose]="summary().balance < 0">
+          {{ summary().balance | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="bottom-grid" *ngIf="categories().length; else emptyTpl">
+      <div class="card chart-card">
+        <h3>Despesas por categoria</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart
+                  [data]="chartData()"
+                  [options]="chartOptions"
+                  type="doughnut">
+          </canvas>
+        </div>
+      </div>
+
+      <div class="card breakdown-card">
+        <h3>Detalhamento</h3>
+        <div class="breakdown-list">
+          <div class="breakdown-item" *ngFor="let c of categories()">
+            <div class="cat-dot" [style.background]="c.categoryColor ?? '#58a6ff'"></div>
+            <div class="cat-info">
+              <span class="cat-name">{{ c.categoryName }}</span>
+              <div class="progress-bar-wrapper">
+                <div class="progress-fill" [style.width.%]="c.percentage"
+                     [style.background]="c.categoryColor ?? '#58a6ff'"></div>
+              </div>
+            </div>
+            <div class="cat-values">
+              <span class="cat-total">{{ c.total | currency:'BRL':'symbol':'1.2-2' }}</span>
+              <span class="cat-pct text-muted">{{ c.percentage | number:'1.0-1' }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyTpl>
+    <div class="card empty-chart">
+      <mat-icon>analytics</mat-icon>
+      <p>Nenhuma transação para análise no histórico completo.</p>
+    </div>
+  </ng-template>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state"><mat-icon class="spin">sync</mat-icon></div>
+  </ng-template>
+
+</div>

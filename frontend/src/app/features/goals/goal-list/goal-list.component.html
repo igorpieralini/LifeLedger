@@ -1,4 +1,4 @@
-<div class="goals-root" [class.panel-open]="panelOpen()">
+<div class="goals-root">
 
   <!-- ═══════════════════ CONTEÚDO PRINCIPAL ═══════════════════ -->
   <div class="goals-main">
@@ -19,6 +19,10 @@
             <mat-icon>chevron_right</mat-icon>
           </button>
         </div>
+        <button class="btn-import" (click)="createSuggestedGoals()" [disabled]="creatingSuggested()">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>Metas sugeridas</span>
+        </button>
         <button class="btn-add" (click)="openPanel()">
           <mat-icon>add</mat-icon>
           <span>Nova meta</span>
@@ -88,11 +92,15 @@
           </p>
 
           <div class="goal-card__tags">
+            <span class="meta-tag">
+              <mat-icon>{{ g.financial ? 'account_balance_wallet' : 'task_alt' }}</mat-icon>
+              {{ g.financial ? 'Financeira' : 'Não financeira' }}
+            </span>
             <span class="meta-tag" *ngIf="g.deadline">
               <mat-icon>event</mat-icon> {{ g.deadline | date:'dd/MM/yyyy' }}
             </span>
             <span class="meta-tag" *ngIf="g.targetValue">
-              <mat-icon>flag</mat-icon> {{ g.targetValue | number:'1.0-1' }}
+              <mat-icon>flag</mat-icon> {{ g.targetValue | number:'1.0-1' }} alvo
             </span>
             <span class="meta-tag">
               <mat-icon>account_tree</mat-icon> {{ g.subGoals.length }} sub-metas
@@ -142,77 +150,5 @@
 
   </div>
   <!-- /goals-main -->
-
-  <!-- ═══════════════════ PAINEL LATERAL ═══════════════════ -->
-  <aside class="goal-panel" [class.open]="panelOpen()" role="dialog" aria-modal="true">
-
-    <div class="goal-panel__header">
-      <div>
-        <h2>{{ editingGoal() ? 'Editar meta' : 'Nova meta' }}</h2>
-        <p class="text-muted" style="font-size:.8rem; margin-top:.2rem">
-          {{ editingGoal() ? 'Atualize os dados da meta' : 'Preencha os dados para criar' }}
-        </p>
-      </div>
-      <button class="icon-btn" (click)="closePanel()" aria-label="Fechar painel">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-
-    <div class="goal-panel__body">
-      <form [formGroup]="form" class="panel-form">
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Título</mat-label>
-          <input matInput formControlName="title" maxlength="200"
-                 placeholder="Ex: Economizar R$ 10.000">
-          <mat-hint align="end">{{ form.get('title')?.value?.length ?? 0 }}/200</mat-hint>
-          <mat-error>Título é obrigatório</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full">
-          <mat-label>Descrição</mat-label>
-          <textarea matInput formControlName="description" rows="3"
-                    placeholder="Descreva o objetivo desta meta (opcional)"></textarea>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Ano</mat-label>
-          <mat-select formControlName="year">
-            <mat-option *ngFor="let y of years" [value]="y">{{ y }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Valor alvo</mat-label>
-          <input matInput formControlName="targetValue" type="number" min="0"
-                 placeholder="Opcional">
-        </mat-form-field>
-
-        <div class="native-field full">
-          <label class="native-label">Prazo <span class="native-opt">(opcional)</span></label>
-          <input type="date" class="native-input" formControlName="deadline">
-        </div>
-
-        <div class="error-msg" *ngIf="panelError()">
-          <mat-icon>error_outline</mat-icon> {{ panelError() }}
-        </div>
-
-      </form>
-    </div>
-
-    <div class="goal-panel__footer">
-      <button class="btn-ghost" (click)="closePanel()">Cancelar</button>
-      <button class="btn-primary" (click)="submit()" [disabled]="panelLoading()">
-        <mat-icon *ngIf="panelLoading()" style="animation: spin .8s linear infinite">
-          hourglass_empty
-        </mat-icon>
-        {{ editingGoal() ? 'Salvar alterações' : 'Criar meta' }}
-      </button>
-    </div>
-
-  </aside>
-
-  <!-- Overlay escuro ao abrir o painel -->
-  <div class="panel-overlay" [class.visible]="panelOpen()" (click)="closePanel()"></div>
 
 </div>

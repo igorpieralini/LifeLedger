@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '@env/environment';
 import {
-  Category, CategoryRequest, CsvImportResult, FinanceSummary,
+  Category, CategoryLimit, CategoryLimitRequest, CategoryRequest, CsvImportResult, FinanceLimits, FinanceSummary,
   Page, Transaction, TransactionRequest
 } from '../models/finance.model';
 
@@ -10,6 +10,7 @@ import {
 export class FinanceService {
   private readonly txApi  = `${environment.apiUrl}/transactions`;
   private readonly catApi = `${environment.apiUrl}/categories`;
+  private readonly categoryLimitApi = `${environment.apiUrl}/category-limits`;
 
   constructor(private http: HttpClient) {}
 
@@ -22,6 +23,10 @@ export class FinanceService {
   getTransactions(page = 0, size = 20) {
     const params = new HttpParams().set('page', page).set('size', size).set('sort', 'date,desc');
     return this.http.get<Page<Transaction>>(this.txApi, { params });
+  }
+
+  getTransactionHistory() {
+    return this.http.get<Transaction[]>(`${this.txApi}/history`);
   }
 
   getTransaction(id: number) {
@@ -39,6 +44,19 @@ export class FinanceService {
   getSummary(year: number, month: number) {
     const params = new HttpParams().set('year', year).set('month', month);
     return this.http.get<FinanceSummary>(`${this.txApi}/summary`, { params });
+  }
+
+  getLimits(year: number, month: number) {
+    const params = new HttpParams().set('year', year).set('month', month);
+    return this.http.get<FinanceLimits>(`${this.txApi}/limits`, { params });
+  }
+
+  getCategoryLimits() {
+    return this.http.get<CategoryLimit[]>(this.categoryLimitApi);
+  }
+
+  updateCategoryLimit(id: number, request: CategoryLimitRequest) {
+    return this.http.put<CategoryLimit>(`${this.categoryLimitApi}/${id}`, request);
   }
 
   importCsv(file: File) {

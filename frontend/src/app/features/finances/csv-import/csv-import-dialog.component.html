@@ -49,10 +49,10 @@
            (dragover)="onDragOver($event)"
            (dragleave)="onDragLeave()"
            (drop)="onDrop($event)"
-           (click)="fileInput.click()"
+           (click)="inputFile.triggerClick()"
            role="button"
            tabindex="0"
-           (keydown.enter)="fileInput.click()">
+           (keydown.enter)="inputFile.triggerClick()">
         <mat-icon class="drop-icon">cloud_upload</mat-icon>
         <p class="drop-text">Arraste o arquivo aqui</p>
         <p class="drop-sub text-muted">ou clique para selecionar</p>
@@ -60,7 +60,7 @@
           <span class="drop-badge">.csv</span>
           <span class="drop-badge">.pdf</span>
         </div>
-        <input #fileInput type="file" accept=".csv,.pdf" hidden (change)="onFileSelect($event)">
+        <ll-input-file #inputFile accept=".csv,.pdf" (fileSelected)="onFileSelect($event)"></ll-input-file>
       </div>
 
       <!-- Dica CSV -->
@@ -117,20 +117,25 @@
         </div>
         <div class="metric-sep"></div>
         <div class="metric">
-          <span class="metric-val text-emerald">{{ r.totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <span class="metric-val text-emerald" [title]="formatCurrencyFull(r.totalIncome)">
+            {{ formatCurrencyCompact(r.totalIncome) }}
+          </span>
           <span class="metric-lbl">Receitas</span>
         </div>
         <div class="metric-sep"></div>
         <div class="metric">
-          <span class="metric-val text-rose">{{ r.totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <span class="metric-val text-rose" [title]="formatCurrencyFull(r.totalExpense)">
+            {{ formatCurrencyCompact(r.totalExpense) }}
+          </span>
           <span class="metric-lbl">Despesas</span>
         </div>
         <div class="metric-sep"></div>
         <div class="metric">
           <span class="metric-val"
                 [class.text-emerald]="r.balance >= 0"
-                [class.text-rose]="r.balance < 0">
-            {{ r.balance | currency:'BRL':'symbol':'1.2-2' }}
+                [class.text-rose]="r.balance < 0"
+                [title]="formatCurrencyFull(r.balance)">
+            {{ formatCurrencyCompact(r.balance) }}
           </span>
           <span class="metric-lbl">Saldo</span>
         </div>

@@ -14,6 +14,8 @@
   padding-right : 4px;
 }
 
+// ── Breadcrumb ────────────────────────────────────────────────────────────────
+
 .breadcrumb { margin-bottom: 0.5rem; }
 
 .back-link {
@@ -25,43 +27,48 @@
   font-size: 0.85rem;
 
   mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
-  &:hover { color: var(--accent); }
+  &:hover { color: var(--indigo-light); }
 }
 
-// ── Period picker ──────────────────────────────────────────────────────────
-.period-picker { position: relative; }
+// ── Period picker ──────────────────────────────────────────────────────────────
+.period-picker {
+  position  : relative;
+  flex-shrink: 0;
+}
 
 .period-btn {
   display     : inline-flex;
   align-items : center;
   gap         : 0.4rem;
   padding     : 0.45rem 0.8rem;
-  border-radius: 8px;
-  background  : var(--bg-card);
+  border-radius: var(--radius-sm);
+  background  : var(--bg-surface);
   border      : 1px solid var(--border);
-  color       : var(--text);
+  color       : var(--text-primary);
   font-size   : 0.875rem;
   cursor      : pointer;
-  transition  : border-color .15s, background .15s;
+  white-space : nowrap;
+  transition  : border-color var(--transition-fast), background var(--transition-fast);
 
   mat-icon { font-size: 1rem; width: 1rem; height: 1rem; color: var(--text-muted); }
-  .chevron { transition: transform .2s; }
+  .chevron { transition: transform 0.2s; }
   .chevron.open { transform: rotate(180deg); }
 
-  &:hover { border-color: var(--accent); }
+  &:hover { border-color: var(--indigo); }
 }
 
 .period-panel {
   position    : absolute;
   top         : calc(100% + 6px);
   right       : 0;
-  background  : var(--bg-card);
-  border      : 1px solid var(--border);
-  border-radius: 10px;
+  background  : var(--bg-overlay);
+  border      : 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
   padding     : 0.75rem;
-  box-shadow  : 0 8px 28px rgba(0,0,0,.35);
+  box-shadow  : var(--shadow-lg);
   z-index     : 100;
-  min-width   : 230px;
+  min-width   : 220px;
+  max-width   : calc(100vw - 2rem);
 }
 
 .picker-years  { display: flex; gap: 0.25rem; flex-wrap: wrap; }
@@ -70,27 +77,35 @@
 .picker-opt {
   padding      : 0.35rem 0.5rem;
   border       : none;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background   : transparent;
-  color        : var(--text);
+  color        : var(--text-primary);
   font-size    : 0.8rem;
   cursor       : pointer;
-  transition   : background .12s;
+  transition   : background 0.12s;
   white-space  : nowrap;
 
   &:hover  { background: var(--bg-subtle); }
-  &.active { background: var(--accent); color: #fff; font-weight: 600; }
+  &.active { background: var(--indigo); color: #fff; font-weight: 600; }
 }
 
 .picker-divider { margin: 0.5rem 0; border-top: 1px solid var(--border); }
 
-.summary-cards { margin-bottom: 1rem; }
+// ── Summary cards ─────────────────────────────────────────────────────────────
+
+.summary-cards {
+  margin-bottom: 1rem;
+  flex-shrink  : 0;
+}
+
+// ── Bottom grid (chart + breakdown) ───────────────────────────────────────────
 
 .bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
+  min-height: 0;
 
   @media (max-width: 900px) { grid-template-columns: 1fr; }
 }
@@ -100,7 +115,8 @@
   margin: 1rem auto 0;
 }
 
-// Breakdown
+// ── Breakdown ─────────────────────────────────────────────────────────────────
+
 .breakdown-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.75rem; }
 
 .breakdown-item {
@@ -121,9 +137,16 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  min-width: 0;
 }
 
-.cat-name { font-size: 0.875rem; font-weight: 500; }
+.cat-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .cat-values {
   display: flex;
@@ -134,6 +157,8 @@
 
 .cat-total { font-size: 0.875rem; font-weight: 600; }
 .cat-pct   { font-size: 0.75rem; }
+
+// ── Empty chart ───────────────────────────────────────────────────────────────
 
 .empty-chart {
   display: flex;
@@ -146,6 +171,8 @@
 
   mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; }
 }
+
+// ── Loading ───────────────────────────────────────────────────────────────────
 
 .loading-state {
   display: flex; justify-content: center; padding: 4rem;

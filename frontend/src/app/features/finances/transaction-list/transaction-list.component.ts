@@ -3,22 +3,18 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
 import { FinanceService } from '../../../core/services/finance.service';
-import { Category, Transaction } from '../../../core/models/finance.model';
+import { Category, CategoryLimitStatus, Transaction } from '../../../core/models/finance.model';
 import { CsvImportDialogComponent } from '../csv-import/csv-import-dialog.component';
+import { TransactionFormDialogComponent } from '../transaction-form/transaction-form-dialog.component';
 
 @Component({
   selector: 'll-transaction-list',
   standalone: true,
   imports: [
     CommonModule, CurrencyPipe, DatePipe,
-    MatIconModule, MatButtonModule, MatMenuModule,
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    CsvImportDialogComponent
+    MatIconModule, MatButtonModule, MatMenuModule
   ],
   templateUrl: './transaction-list.component.html',
   styleUrl: './transaction-list.component.scss'
@@ -31,12 +27,7 @@ export class TransactionListComponent implements OnInit {
   page         = signal(0);
   total        = signal(0);
   size         = 20;
-
-  importOpen   = signal(false);
-  panelOpen    = signal(false);
-  panelLoading = signal(false);
-  panelError   = signal('');
-  editingTx    = signal<Transaction | null>(null);
+  exceededLimits = signal<CategoryLimitStatus[]>([]);
 
   pageSummary = computed(() => {
     const txs = this.transactions();
@@ -46,20 +37,12 @@ export class TransactionListComponent implements OnInit {
     };
   });
 
-  form = this.fb.group({
-    type:        ['EXPENSE', Validators.required],
-    amount:      [null as number | null, [Validators.required, Validators.min(0.01)]],
-    description: ['', [Validators.required, Validators.maxLength(255)]],
-    date:        [this.todayStr(), Validators.required],
-    categoryId:  [null as number | null],
-    notes:       ['']
-  });
-
-  constructor(private financeService: FinanceService, private fb: FormBuilder) {}
+  constructor(private financeService: FinanceService, private dialog: MatDialog) {}
 
   ngOnInit() {
     this.financeService.getCategories().subscribe(cats => this.categories.set(cats));
     this.load();
+    this.loadExceededLimits();
   }
 
   load() {
@@ -83,70 +66,26 @@ export class TransactionListComponent implements OnInit {
   }
 
   openPanel(tx?: Transaction) {
-    this.editingTx.set(tx ?? null);
-    this.panelError.set('');
-    this.panelLoading.set(false);
-    this.form.reset({
-      type:        tx?.type        ?? 'EXPENSE',
-      amount:      tx?.amount      ?? null,
-      description: tx?.description ?? '',
-      date:        tx?.date        ?? this.todayStr(),
-      categoryId:  tx?.categoryId  ?? null,
-      notes:       tx?.notes       ?? ''
+    const ref = this.dialog.open(TransactionFormDialogComponent, {
+      width: '520px',
+      disableClose: false,
+      panelClass: 'modal-dialog',
+      data: tx ? { tx } : {}
     });
-    this.panelOpen.set(true);
-  }
-
-  closePanel() {
-    this.panelOpen.set(false);
-    this.editingTx.set(null);
-    this.panelError.set('');
-    this.form.reset();
-  }
-
-  submit() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.panelLoading.set(true);
-    this.panelError.set('');
-
-    const val = this.form.value;
-    const request: any = {
-      type:        val.type,
-      amount:      val.amount,
-      description: val.description,
-      date:        val.date,
-      categoryId:  val.categoryId || undefined,
-      notes:       val.notes      || undefined
-    };
-
-    const tx = this.editingTx();
-    const op = tx
-      ? this.financeService.updateTransaction(tx.id, request)
-      : this.financeService.createTransaction(request);
-
-    op.subscribe({
-      next: () => { this.closePanel(); this.load(); },
-      error: (err) => {
-        this.panelError.set(this.parseError(err, 'Erro ao salvar transação'));
-        this.panelLoading.set(false);
+    ref.afterClosed().subscribe(ok => {
+      if (ok) {
+        this.load();
+        this.loadExceededLimits();
       }
     });
   }
 
-  private parseError(err: any, fallback: string): string {
-    const msg = err?.error?.message;
-    if (!msg) return fallback;
-    if (typeof msg === 'string') return msg;
-    if (typeof msg === 'object') {
-      const first = Object.values(msg)[0];
-      return typeof first === 'string' ? first : fallback;
-    }
-    return fallback;
-  }
-
   delete(tx: Transaction) {
     if (!confirm(`Excluir a transação "${tx.description}"?`)) return;
-    this.financeService.deleteTransaction(tx.id).subscribe(() => this.load());
+    this.financeService.deleteTransaction(tx.id).subscribe(() => {
+      this.load();
+      this.loadExceededLimits();
+    });
   }
 
   nextPage() { this.page.update(p => p + 1); this.load(); }
@@ -154,18 +93,53 @@ export class TransactionListComponent implements OnInit {
 
   get totalPages() { return Math.ceil(this.total() / this.size); }
 
-  openImport() { this.importOpen.set(true); }
-
-  onImportDone(imported: boolean) {
-    this.importOpen.set(false);
-    if (imported) {
-      this.page.set(0);
-      this.load();
-      this.financeService.getCategories().subscribe(cats => this.categories.set(cats));
-    }
+  openImport() {
+    const ref = this.dialog.open(CsvImportDialogComponent, {
+      width: '520px',
+      disableClose: false,
+      panelClass: 'modal-dialog'
+    });
+    ref.afterClosed().subscribe((imported: boolean) => {
+      if (imported) {
+        this.page.set(0);
+        this.load();
+        this.loadExceededLimits();
+        this.financeService.getCategories().subscribe(cats => this.categories.set(cats));
+      }
+    });
   }
 
-  private todayStr(): string {
-    return new Date().toISOString().split('T')[0];
+  private loadExceededLimits() {
+    const now = new Date();
+    this.financeService.getLimits(now.getFullYear(), now.getMonth() + 1).subscribe({
+      next: data => this.exceededLimits.set(data.categories.filter(c => c.exceeded)),
+      error: () => this.exceededLimits.set([])
+    });
+  }
+
+  private parseError(err: unknown, fallback: string): string {
+    if (!err || typeof err !== 'object') return fallback;
+
+    const e = err as { error?: unknown; message?: unknown };
+
+    if (typeof e.error === 'string' && e.error.trim()) {
+      return e.error;
+    }
+
+    if (e.error && typeof e.error === 'object') {
+      const apiError = e.error as { message?: unknown; error?: unknown };
+      if (typeof apiError.message === 'string' && apiError.message.trim()) {
+        return apiError.message;
+      }
+      if (typeof apiError.error === 'string' && apiError.error.trim()) {
+        return apiError.error;
+      }
+    }
+
+    if (typeof e.message === 'string' && e.message.trim()) {
+      return e.message;
+    }
+
+    return fallback;
   }
 }

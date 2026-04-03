@@ -1,0 +1,89 @@
+<div class="limits-page">
+  <div class="page-header limits-header">
+    <div class="page-header__left">
+      <h1>Limites por Categoria</h1>
+      <p class="text-secondary">Acompanhe limites mensais e ajuste os valores rapidamente.</p>
+    </div>
+  </div>
+
+  <div class="filters card">
+    <form [formGroup]="form" class="filters-grid">
+      <ll-select-native [control]="$any(form.get('year'))" label="Ano">
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </ll-select-native>
+
+      <ll-select-native [control]="$any(form.get('month'))" label="Mês">
+        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+      </ll-select-native>
+
+      <ll-select-native [control]="$any(form.get('category'))" label="Categoria">
+        <option value="ALL">Todas</option>
+        <option *ngFor="let c of categories()" [value]="c">{{ c }}</option>
+      </ll-select-native>
+
+      <button mat-flat-button color="primary" type="button" class="btn-apply" (click)="load()">Aplicar</button>
+    </form>
+  </div>
+
+  <div class="alert card" *ngIf="exceededRows().length">
+    <div class="alert-head">
+      <mat-icon>warning_amber</mat-icon>
+      <strong>{{ exceededRows().length }} limite{{ exceededRows().length > 1 ? 's' : '' }} ultrapassado{{ exceededRows().length > 1 ? 's' : '' }}</strong>
+    </div>
+  </div>
+
+  <div class="save-error" *ngIf="saveError()">{{ saveError() }}</div>
+
+  <div class="table-card card" *ngIf="!loading(); else loadingTpl">
+    <table class="limits-table" *ngIf="filteredRows().length; else emptyTpl">
+      <thead>
+        <tr>
+          <th>Período</th>
+          <th>Categoria</th>
+          <th>Limite</th>
+          <th>Gasto</th>
+          <th>Restante</th>
+          <th>Uso</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filteredRows()">
+          <td>{{ r.period }}</td>
+          <td>{{ r.categoryName }}</td>
+          <td>
+            <div class="limit-edit">
+              <ll-input-number-inline
+                [min]="0"
+                [step]="0.01"
+                [value]="limitValue(r.categoryName, r.limitAmount)"
+                (inputChange)="onLimitInput(r.categoryName, $event)">
+              </ll-input-number-inline>
+              <button
+                type="button"
+                class="save-btn"
+                [disabled]="savingCategory() === r.categoryName"
+                (click)="saveLimit(r.categoryName)">
+                {{ savingCategory() === r.categoryName ? 'Salvando...' : 'Salvar' }}
+              </button>
+            </div>
+          </td>
+          <td>{{ r.spent | currency:'BRL':'symbol':'1.0-0' }}</td>
+          <td [class.text-rose]="r.exceeded">{{ r.remaining | currency:'BRL':'symbol':'1.0-0' }}</td>
+          <td>{{ r.usedPercentage | number:'1.0-1' }}%</td>
+          <td>
+            <span class="status" [class.exceeded]="r.exceeded">{{ r.exceeded ? 'Ultrapassado' : 'OK' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyTpl>
+    <div class="empty">Nenhum dado de limite para os filtros selecionados.</div>
+  </ng-template>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state"><mat-icon class="spin">sync</mat-icon></div>
+  </ng-template>
+</div>

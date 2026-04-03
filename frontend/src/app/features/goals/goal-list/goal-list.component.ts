@@ -4,20 +4,18 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
 import { GoalService } from '../../../core/services/goal.service';
 import { Goal } from '../../../core/models/goal.model';
+import { GoalFormDialogComponent } from '../goal-form/goal-form-dialog.component';
 
 @Component({
   selector: 'll-goal-list',
   standalone: true,
   imports: [
     CommonModule, RouterLink, DatePipe, DecimalPipe,
-    MatIconModule, MatButtonModule, MatMenuModule,
-    ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule
+    MatIconModule, MatButtonModule, MatMenuModule
   ],
   templateUrl: './goal-list.component.html',
   styleUrl: './goal-list.component.scss'
@@ -26,20 +24,9 @@ export class GoalListComponent implements OnInit {
   goals        = signal<Goal[]>([]);
   loading      = signal(true);
   year         = signal(new Date().getFullYear());
-  panelOpen    = signal(false);
-  panelLoading = signal(false);
-  panelError   = signal('');
-  editingGoal  = signal<Goal | null>(null);
+  creatingSuggested = signal(false);
 
   years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - 2 + i);
-
-  form = this.fb.group({
-    title:       ['', [Validators.required, Validators.maxLength(200)]],
-    description: [''],
-    year:        [new Date().getFullYear(), Validators.required],
-    targetValue: [null as number | null],
-    deadline:    ['' as string]
-  });
 
   statusSummary = computed(() => {
     const g = this.goals();
@@ -65,7 +52,7 @@ export class GoalListComponent implements OnInit {
     ];
   });
 
-  constructor(private goalService: GoalService, private fb: FormBuilder) {}
+  constructor(private goalService: GoalService, private dialog: MatDialog) {}
 
   ngOnInit() { this.load(); }
 
@@ -83,68 +70,40 @@ export class GoalListComponent implements OnInit {
   }
 
   openPanel(goal?: Goal) {
-    this.editingGoal.set(goal ?? null);
-    this.panelError.set('');
-    this.panelLoading.set(false);
-    this.form.reset({
-      title:       goal?.title       ?? '',
-      description: goal?.description ?? '',
-      year:        goal?.year        ?? new Date().getFullYear(),
-      targetValue: goal?.targetValue ?? null,
-      deadline:    goal?.deadline    ?? ''
+    const ref = this.dialog.open(GoalFormDialogComponent, {
+      width: '520px',
+      maxWidth: 'calc(100vw - 24px)',
+      disableClose: false,
+      panelClass: 'modal-dialog',
+      data: goal ? { goal } : {}
     });
-    this.panelOpen.set(true);
-  }
-
-  closePanel() {
-    this.panelOpen.set(false);
-    this.editingGoal.set(null);
-    this.panelError.set('');
-    this.form.reset();
-  }
-
-  submit() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.panelLoading.set(true);
-    this.panelError.set('');
-
-    const val = this.form.value;
-    const request: any = {
-      title:       val.title,
-      description: val.description || undefined,
-      year:        Number(val.year),
-      targetValue: val.targetValue ? Number(val.targetValue) : undefined,
-      deadline:    val.deadline    || undefined
-    };
-
-    const goal = this.editingGoal();
-    const op   = goal
-      ? this.goalService.update(goal.id, request)
-      : this.goalService.create(request);
-
-    op.subscribe({
-      next: () => { this.closePanel(); this.load(); },
-      error: (err) => {
-        this.panelError.set(this.parseError(err, 'Erro ao salvar meta'));
-        this.panelLoading.set(false);
-      }
+    ref.afterClosed().subscribe(ok => {
+      if (ok) this.load();
     });
-  }
-
-  private parseError(err: any, fallback: string): string {
-    const msg = err?.error?.message;
-    if (!msg) return fallback;
-    if (typeof msg === 'string') return msg;
-    if (typeof msg === 'object') {
-      const first = Object.values(msg)[0];
-      return typeof first === 'string' ? first : fallback;
-    }
-    return fallback;
   }
 
   delete(goal: Goal) {
     if (!confirm(`Excluir a meta "${goal.title}"?`)) return;
     this.goalService.delete(goal.id).subscribe(() => this.load());
+  }
+
+  createSuggestedGoals() {
+    this.creatingSuggested.set(true);
+    const y = this.year();
+    const templates = [
+      { title: 'Saude', description: 'Rotina de exercicios e bem-estar', year: y, financial: false },
+      { title: 'Vida pessoal', description: 'Qualidade de vida, familia e lazer', year: y, financial: false },
+      { title: 'Conhecimento', description: 'Aprendizado continuo e desenvolvimento', year: y, financial: false },
+      { title: 'Roupas', description: 'Planejamento de organizacao e renovacao de guarda-roupa', year: y, financial: false }
+    ];
+
+    forkJoin(templates.map(t => this.goalService.create(t as any))).subscribe({
+      next: () => {
+        this.creatingSuggested.set(false);
+        this.load();
+      },
+      error: () => this.creatingSuggested.set(false)
+    });
   }
 
   statusLabel(s: string) {

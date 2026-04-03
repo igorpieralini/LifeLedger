@@ -1,39 +1,29 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-
-interface NavItem { label: string; icon: string; route: string; exact?: boolean; }
-interface NavGroup { label?: string; items: NavItem[]; }
+import { Component, ViewChild } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { NgIf } from '@angular/common';
+import { SidebarComponent, HeaderComponent, FooterComponent } from '../features';
 
 @Component({
   selector: 'll-shell',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
+  imports: [RouterOutlet, SidebarComponent, HeaderComponent, FooterComponent, NgIf],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss'
 })
 export class ShellComponent {
-  open = signal(true);
+  /** Tracks whether the sidebar is in collapsed state. Initialises based on viewport. */
+  collapsed = window.innerWidth <= 768;
 
-  navGroups: NavGroup[] = [
-    {
-      items: [{ label: 'Dashboard', icon: 'dashboard', route: '/dashboard', exact: true }]
-    },
-    {
-      label: 'Metas',
-      items: [
-        { label: 'Metas', icon: 'track_changes', route: '/goals' }
-      ]
-    },
-    {
-      label: 'Finanças',
-      items: [
-        { label: 'Transações',  icon: 'receipt_long', route: '/finances',         exact: true },
-        { label: 'Relatório',   icon: 'bar_chart',    route: '/finances/summary'              }
-      ]
+  @ViewChild(SidebarComponent) private sidebar!: SidebarComponent;
+
+  onCollapsedChange(collapsed: boolean): void {
+    this.collapsed = collapsed;
+  }
+
+  /** Close the sidebar on mobile when the backdrop is tapped. */
+  closeNav(): void {
+    if (!this.collapsed && this.sidebar) {
+      this.sidebar.toggle();
     }
-  ];
-
-  toggle() { this.open.update(v => !v); }
+  }
 }

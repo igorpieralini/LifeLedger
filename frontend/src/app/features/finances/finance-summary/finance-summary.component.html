@@ -3,7 +3,7 @@
   <div class="page-header">
     <div>
       <div class="breadcrumb">
-        <a routerLink="/finances" class="back-link">
+        <a routerLink="/finances/history" class="back-link">
           <mat-icon>arrow_back</mat-icon> Transações
         </a>
       </div>
@@ -41,26 +41,29 @@
 
     <!-- Summary cards -->
     <div class="grid-3 summary-cards">
-      <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(63,185,80,.12)">
-          <mat-icon style="color:var(--success)">trending_up</mat-icon>
+      <div class="stat-card" style="--card-accent: var(--emerald); --card-accent-dim: var(--emerald-dim)">
+        <div class="stat-icon">
+          <mat-icon>trending_up</mat-icon>
         </div>
         <span class="stat-label">Total de receitas</span>
-        <span class="stat-value text-success">{{ s.totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
+        <span class="stat-value text-emerald">{{ s.totalIncome | currency:'BRL':'symbol':'1.2-2' }}</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(248,81,73,.12)">
-          <mat-icon style="color:var(--danger)">trending_down</mat-icon>
+      <div class="stat-card" style="--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)">
+        <div class="stat-icon">
+          <mat-icon>trending_down</mat-icon>
         </div>
         <span class="stat-label">Total de despesas</span>
-        <span class="stat-value text-danger">{{ s.totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
+        <span class="stat-value text-rose">{{ s.totalExpense | currency:'BRL':'symbol':'1.2-2' }}</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:rgba(88,166,255,.12)">
-          <mat-icon style="color:var(--accent)">account_balance</mat-icon>
+      <div class="stat-card"
+           [style]="s.balance >= 0
+             ? '--card-accent: var(--indigo); --card-accent-dim: var(--indigo-dim)'
+             : '--card-accent: var(--rose); --card-accent-dim: var(--rose-dim)'">
+        <div class="stat-icon">
+          <mat-icon>account_balance</mat-icon>
         </div>
         <span class="stat-label">Saldo do período</span>
-        <span class="stat-value" [class.text-success]="s.balance >= 0" [class.text-danger]="s.balance < 0">
+        <span class="stat-value" [class.text-emerald]="s.balance >= 0" [class.text-rose]="s.balance < 0">
           {{ s.balance | currency:'BRL':'symbol':'1.2-2' }}
         </span>
       </div>

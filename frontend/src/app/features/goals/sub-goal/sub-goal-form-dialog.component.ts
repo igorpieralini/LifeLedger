@@ -10,13 +10,14 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { GoalService } from '../../../core/services/goal.service';
 import { SubGoal, GoalPeriod } from '../../../core/models/goal.model';
+import { SelectNativeComponent } from '../../../shared/components/atoms';
 
 @Component({
   selector: 'll-sub-goal-form-dialog',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatDialogModule,
             MatFormFieldModule, MatInputModule, MatButtonModule,
-            MatSelectModule, MatDatepickerModule, MatNativeDateModule],
+            MatDatepickerModule, MatNativeDateModule, SelectNativeComponent],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Editar sub-meta' : 'Nova sub-meta' }}</h2>
     <mat-dialog-content>
@@ -32,13 +33,10 @@ import { SubGoal, GoalPeriod } from '../../../core/models/goal.model';
           <textarea matInput formControlName="description" rows="2"></textarea>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Período</mat-label>
-          <mat-select formControlName="period">
-            <mat-option value="MONTHLY">Mensal</mat-option>
-            <mat-option value="WEEKLY">Semanal</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <ll-select-native [control]="form.controls.period" label="Período">
+          <option value="MONTHLY">Mensal</option>
+          <option value="WEEKLY">Semanal</option>
+        </ll-select-native>
 
         <mat-form-field appearance="outline">
           <mat-label>Data de referência</mat-label>
@@ -62,7 +60,15 @@ import { SubGoal, GoalPeriod } from '../../../core/models/goal.model';
     </mat-dialog-actions>
   `,
   styles: [`
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; padding-top: 0.5rem; min-width: 440px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1rem;
+      padding-top: 0.5rem;
+    }
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
     .full { grid-column: 1 / -1; }
     mat-form-field { width: 100%; }
     .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
