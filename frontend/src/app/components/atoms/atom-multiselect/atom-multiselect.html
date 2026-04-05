@@ -1,0 +1,41 @@
+<div class="multiselect" [class.multiselect--error]="error()" [class.multiselect--disabled]="disabled()" [class.multiselect--open]="open()">
+  @if (label()) {
+    <label class="multiselect__label">
+      {{ label() }}
+      @if (required()) { <span class="multiselect__required">*</span> }
+    </label>
+  }
+
+  <div class="multiselect__trigger" (click)="toggleDropdown()">
+    @if (displayText()) {
+      <span class="multiselect__value">{{ displayText() }}</span>
+    } @else {
+      <span class="multiselect__placeholder">{{ placeholder() }}</span>
+    }
+    <span class="multiselect__arrow material-symbols-outlined">expand_more</span>
+  </div>
+
+  @if (open()) {
+    <ul class="multiselect__dropdown">
+      @for (opt of options(); track opt.value) {
+        <li
+          class="multiselect__option"
+          [class.multiselect__option--selected]="isSelected(opt.value)"
+          [class.multiselect__option--disabled]="opt.disabled"
+          (click)="!opt.disabled && toggleOption(opt.value)"
+        >
+          <span class="multiselect__check">
+            @if (isSelected(opt.value)) {
+              <span class="material-symbols-outlined">check</span>
+            }
+          </span>
+          {{ opt.label }}
+        </li>
+      }
+    </ul>
+  }
+
+  @if (error()) {
+    <span class="multiselect__error">{{ error() }}</span>
+  }
+</div>

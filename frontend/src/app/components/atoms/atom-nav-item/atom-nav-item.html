@@ -1,0 +1,17 @@
+<a
+  class="nav-item"
+  [routerLink]="route()"
+  routerLinkActive="nav-item--active"
+  [title]="label()"
+  (click)="clicked.emit()"
+>
+  @if (icon()) {
+    <atom-icon [name]="icon()" size="md" />
+  }
+  @if (!collapsed()) {
+    <span class="nav-item__label">{{ label() }}</span>
+  }
+  @if (badge() != null && !collapsed()) {
+    <span class="nav-item__badge">{{ badge() }}</span>
+  }
+</a>

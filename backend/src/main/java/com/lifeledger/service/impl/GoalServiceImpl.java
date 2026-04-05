@@ -34,6 +34,7 @@ public class GoalServiceImpl implements GoalService {
                 .title(request.title())
                 .description(request.description())
                 .year(request.year().shortValue())
+            .financial(Boolean.TRUE.equals(request.financial()))
                 .targetValue(request.targetValue())
                 .deadline(request.deadline())
                 .build();
@@ -62,6 +63,7 @@ public class GoalServiceImpl implements GoalService {
         goal.setTitle(request.title());
         goal.setDescription(request.description());
         goal.setYear(request.year().shortValue());
+        goal.setFinancial(Boolean.TRUE.equals(request.financial()));
         goal.setTargetValue(request.targetValue());
         goal.setDeadline(request.deadline());
         return GoalResponse.from(goalRepository.save(goal));
@@ -79,10 +81,15 @@ public class GoalServiceImpl implements GoalService {
                     .divide(goal.getTargetValue(), 4, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100));
             goal.setProgress((short) Math.min(100, pct.intValue()));
+        } else {
+            int pct = Math.max(0, Math.min(100, request.currentValue().intValue()));
+            goal.setProgress((short) pct);
+        }
 
-            if (goal.getProgress() >= 100) {
-                goal.setStatus(GoalStatus.COMPLETED);
-            }
+        if (goal.getProgress() >= 100) {
+            goal.setStatus(GoalStatus.COMPLETED);
+        } else if (goal.getStatus() == GoalStatus.COMPLETED) {
+            goal.setStatus(GoalStatus.IN_PROGRESS);
         }
 
         return GoalResponse.from(goalRepository.save(goal));

@@ -1,0 +1,42 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <div class="sidebar__brand">
+    <atom-icon name="auto_stories" size="lg" />
+    @if (!collapsed()) {
+      <atom-heading [level]="5">LifeLedger</atom-heading>
+    }
+  </div>
+
+  <atom-divider spacing="sm" />
+
+  <nav class="sidebar__nav">
+    @for (group of groups(); track group.title) {
+      @if (group.title && !collapsed()) {
+        <atom-text variant="caption" color="muted">
+          <span class="sidebar__group-title">{{ group.title }}</span>
+        </atom-text>
+      }
+
+      @for (item of group.items; track item.route) {
+        <a
+          class="sidebar__item"
+          [routerLink]="item.route"
+          routerLinkActive="sidebar__item--active"
+          [title]="item.label"
+          (click)="itemClicked.emit(item)"
+        >
+          <atom-icon [name]="item.icon" size="md" />
+          @if (!collapsed()) {
+            <span class="sidebar__item-label">{{ item.label }}</span>
+          }
+          @if (item.badge && !collapsed()) {
+            <span class="sidebar__item-badge">{{ item.badge }}</span>
+          }
+        </a>
+      }
+
+      @if (!$last) {
+        <atom-divider spacing="sm" />
+      }
+    }
+  </nav>
+</aside>

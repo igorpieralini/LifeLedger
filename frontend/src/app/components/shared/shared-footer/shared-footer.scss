@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-surface, #fff);
+  border-top: 1px solid var(--color-border, #e2e8f0);
+
+  &__links {
+    display: flex;
+    gap: 1rem;
+  }
+}

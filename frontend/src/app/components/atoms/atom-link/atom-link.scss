@@ -1,0 +1,23 @@
+:host {
+  display: inline;
+}
+
+.link {
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  cursor: pointer;
+
+  &--default {
+    color: var(--color-primary, #6366f1);
+    &:hover { color: var(--color-primary-dark, #4f46e5); text-decoration: underline; }
+  }
+  &--muted {
+    color: var(--color-muted, #94a3b8);
+    &:hover { color: var(--color-text, #1e293b); }
+  }
+  &--danger {
+    color: var(--color-danger, #ef4444);
+    &:hover { color: var(--color-danger-dark, #dc2626); }
+  }
+}

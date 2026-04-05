@@ -18,6 +18,8 @@ public record GoalRequest(
         @Max(value = 2100)
         Integer year,
 
+        Boolean financial,
+
         @DecimalMin(value = "0.0", inclusive = false)
         BigDecimal targetValue,
 

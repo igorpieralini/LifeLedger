@@ -34,6 +34,10 @@ public class Goal {
     @Column(nullable = false)
     private Short year;
 
+    @Column(name = "is_financial", nullable = false)
+    @Builder.Default
+    private Boolean financial = false;
+
     @Column(name = "target_value", precision = 15, scale = 2)
     private BigDecimal targetValue;
 

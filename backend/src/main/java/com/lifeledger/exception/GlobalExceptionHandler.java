@@ -38,6 +38,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ErrorResponse> handleSecurity(SecurityException ex) {
+        return build(HttpStatus.UNAUTHORIZED, "Authentication required");
+    }
+
     // Bean Validation errors — returns a field → message map instead of a plain string
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {

@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+.card {
+  border-radius: 0.75rem;
+  transition: box-shadow 0.2s ease;
+
+  &--default {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  &--outlined {
+    background: transparent;
+    border: 1px solid var(--color-border);
+  }
+
+  &--p-none { padding: 0; }
+  &--p-sm   { padding: 0.75rem; }
+  &--p-md   { padding: 1rem 1.25rem; }
+  &--p-lg   { padding: 1.5rem; }
+}

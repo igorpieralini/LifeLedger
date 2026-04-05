@@ -1,0 +1,8 @@
+<button class="theme-toggle" (click)="toggle()" type="button" [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+  <span class="theme-toggle__icon" [class.theme-toggle__icon--active]="isDark">
+    <atom-icon name="dark_mode" size="md" />
+  </span>
+  <span class="theme-toggle__icon" [class.theme-toggle__icon--active]="!isDark">
+    <atom-icon name="light_mode" size="md" />
+  </span>
+</button>

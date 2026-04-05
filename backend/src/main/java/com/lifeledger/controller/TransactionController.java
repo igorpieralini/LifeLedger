@@ -2,6 +2,7 @@ package com.lifeledger.controller;
 
 import com.lifeledger.config.SecurityUtils;
 import com.lifeledger.dto.request.TransactionRequest;
+import com.lifeledger.dto.response.FinanceLimitsResponse;
 import com.lifeledger.dto.response.FinanceSummaryResponse;
 import com.lifeledger.dto.response.TransactionResponse;
 import com.lifeledger.service.TransactionService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/transactions")
@@ -33,6 +35,11 @@ public class TransactionController {
     public ResponseEntity<Page<TransactionResponse>> listAll(
             @PageableDefault(size = 20, sort = "date") Pageable pageable) {
         return ResponseEntity.ok(transactionService.findAll(SecurityUtils.currentUserId(), pageable));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<TransactionResponse>> listHistory() {
+        return ResponseEntity.ok(transactionService.findAllHistory(SecurityUtils.currentUserId()));
     }
 
     @GetMapping("/{id}")
@@ -61,5 +68,14 @@ public class TransactionController {
         int y = year  != null ? year  : java.time.LocalDate.now().getYear();
         int m = month != null ? month : java.time.LocalDate.now().getMonthValue();
         return ResponseEntity.ok(transactionService.getSummary(SecurityUtils.currentUserId(), y, m));
+    }
+
+    @GetMapping("/limits")
+    public ResponseEntity<FinanceLimitsResponse> limits(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
+        int y = year  != null ? year  : java.time.LocalDate.now().getYear();
+        int m = month != null ? month : java.time.LocalDate.now().getMonthValue();
+        return ResponseEntity.ok(transactionService.getCategoryLimits(SecurityUtils.currentUserId(), y, m));
     }
 }

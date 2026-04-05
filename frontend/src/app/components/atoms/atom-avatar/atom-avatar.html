@@ -1,0 +1,5 @@
+@if (src()) {
+  <img class="avatar" [class]="'avatar avatar--' + size()" [src]="src()" [alt]="alt()" />
+} @else {
+  <span class="avatar avatar--fallback" [class]="'avatar avatar--fallback avatar--' + size()">{{ initials() }}</span>
+}

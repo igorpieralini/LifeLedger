@@ -1,0 +1,30 @@
+// ─── LifeLedger Light Theme ────────────────────────────────────────────────
+[data-theme='light'] {
+  // Brand
+  --color-primary:       #6366f1;
+  --color-primary-dark:  #4f46e5;
+  --color-primary-light: #eef2ff;
+  --color-primary-ring:  rgba(99, 102, 241, 0.15);
+
+  // Semantic
+  --color-danger:        #ef4444;
+  --color-danger-dark:   #dc2626;
+  --color-success:       #22c55e;
+  --color-warning:       #f59e0b;
+
+  // Neutral
+  --color-text:          #1e293b;
+  --color-muted:         #94a3b8;
+  --color-border:        #e2e8f0;
+  --color-hover:         #f1f5f9;
+
+  // Surfaces
+  --color-bg:            #ffffff;
+  --color-bg-page:       #f8fafc;
+  --color-surface:       #ffffff;
+  --color-disabled-bg:   #f1f5f9;
+
+  // Secondary (buttons)
+  --color-secondary:      #e2e8f0;
+  --color-secondary-dark: #cbd5e1;
+}

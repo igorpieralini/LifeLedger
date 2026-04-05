@@ -1,0 +1,23 @@
+<header class="header">
+  <div class="header__left">
+    <atom-button variant="ghost" size="sm" (clicked)="toggleSidebar.emit()">
+      <atom-icon [name]="sidebarCollapsed() ? 'menu' : 'menu_open'" />
+    </atom-button>
+  </div>
+
+  <div class="header__right">
+    <atom-change-theme />
+
+    <div class="header__user">
+      <atom-avatar [src]="userAvatar()" [initials]="userName().substring(0, 2)" size="sm" />
+      <div class="header__user-info">
+        <atom-text variant="bold">{{ userName() }}</atom-text>
+        <atom-text variant="caption" color="muted">{{ userEmail() }}</atom-text>
+      </div>
+    </div>
+
+    <atom-button variant="ghost" size="sm" (clicked)="logout.emit()">
+      <atom-icon name="logout" size="md" />
+    </atom-button>
+  </div>
+</header>

@@ -16,6 +16,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Page<Transaction> findByUserIdOrderByDateDescCreatedAtDesc(Long userId, Pageable pageable);
 
+    List<Transaction> findByUserIdOrderByDateDescCreatedAtDesc(Long userId);
+
     List<Transaction> findByUserIdAndDateBetweenOrderByDateDesc(Long userId, LocalDate from, LocalDate to);
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);

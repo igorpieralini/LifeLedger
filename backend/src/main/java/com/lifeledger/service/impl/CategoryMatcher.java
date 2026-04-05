@@ -10,7 +10,7 @@ public final class CategoryMatcher {
 
     public record Match(String categoryName, String color, String icon) {}
 
-    static final Match DEFAULT = new Match("Outros", "#6b7280", "category");
+        static final Match DEFAULT = new Match("Outros itens", "#6b7280", "category");
 
     private record Rule(String categoryName, String color, String icon, String... keywords) {}
 
@@ -119,9 +119,13 @@ public final class CategoryMatcher {
                 "UNIV ", "UNIVERSIDADE", "COLEGIO"),
 
         // ── Financeiro ─────────────────────────────────────────────────────────
-        new Rule("Fatura Cartão",      "#fb7185", "credit_card",
+        new Rule("Fatura do cartão",   "#fb7185", "credit_card",
                 "FATURA PAGA", "PAGAMENTO FATURA", "PAG FATURA",
                 "FATURA CARTAO", "FATURA CARTÃO"),
+
+        new Rule("Boletos",            "#f97316", "receipt",
+                "BOLETO", "PAGAMENTO BOLETO", "PAG BOLETO",
+                "DARF", "GPS ", "FGTS", "TRIBUTO", "ARRECADACAO"),
 
         new Rule("Taxas Bancárias",    "#f43f5e", "account_balance",
                 "TARIFA", "JUROS", "IOF", "TAXA ",    // "IOF" sem espaço — aparece isolado no extrato Itaú

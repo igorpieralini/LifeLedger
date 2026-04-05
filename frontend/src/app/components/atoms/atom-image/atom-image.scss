@@ -1,0 +1,12 @@
+:host {
+  display: inline-block;
+}
+
+.img {
+  display: block;
+  max-width: 100%;
+
+  &--rounded-none { border-radius: 0; }
+  &--rounded-sm   { border-radius: 0.5rem; }
+  &--rounded-full { border-radius: 50%; }
+}

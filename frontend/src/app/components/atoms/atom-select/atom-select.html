@@ -1,0 +1,26 @@
+<div class="select-wrapper" [class.select-wrapper--error]="error()">
+  @if (label()) {
+    <label class="select-wrapper__label" [attr.for]="name()">
+      {{ label() }}
+      @if (required()) { <span class="select-wrapper__required">*</span> }
+    </label>
+  }
+  <select
+    class="select-wrapper__field"
+    [name]="name()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [(ngModel)]="value"
+    (ngModelChange)="changed.emit($event)"
+  >
+    @if (placeholder()) {
+      <option value="" disabled>{{ placeholder() }}</option>
+    }
+    @for (opt of options(); track opt.value) {
+      <option [value]="opt.value" [disabled]="opt.disabled ?? false">{{ opt.label }}</option>
+    }
+  </select>
+  @if (error()) {
+    <span class="select-wrapper__error">{{ error() }}</span>
+  }
+</div>

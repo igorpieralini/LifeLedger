@@ -1,0 +1,9 @@
+<img
+  [src]="src()"
+  [alt]="alt()"
+  [class]="'img img--rounded-' + rounded()"
+  [style.width]="width() || null"
+  [style.height]="height() || null"
+  [style.object-fit]="objectFit()"
+  loading="lazy"
+/>

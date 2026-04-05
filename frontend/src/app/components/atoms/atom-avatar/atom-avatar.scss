@@ -1,0 +1,22 @@
+:host {
+  display: inline-flex;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+
+  &--sm { width: 1.75rem; height: 1.75rem; font-size: 0.625rem; }
+  &--md { width: 2.25rem; height: 2.25rem; font-size: 0.75rem; }
+  &--lg { width: 3rem; height: 3rem; font-size: 1rem; }
+
+  &--fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary, #6366f1);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}

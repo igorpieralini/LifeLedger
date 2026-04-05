@@ -1,0 +1,136 @@
+<div class="dashboard">
+  <!-- Stat Cards -->
+  <div class="dashboard__stats">
+    <atom-card>
+      <div class="stat">
+        <div class="stat__header">
+          <atom-icon name="trending_up" size="md" color="var(--color-success)" />
+          <atom-text variant="caption" color="muted">Total de Entradas</atom-text>
+        </div>
+        <span class="stat__value stat__value--income">
+          {{ totalIncome() | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </atom-card>
+
+    <atom-card>
+      <div class="stat">
+        <div class="stat__header">
+          <atom-icon name="trending_down" size="md" color="var(--color-danger)" />
+          <atom-text variant="caption" color="muted">Total de Saídas</atom-text>
+        </div>
+        <span class="stat__value stat__value--expense">
+          {{ totalExpense() | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </atom-card>
+
+    <atom-card>
+      <div class="stat">
+        <div class="stat__header">
+          <atom-icon name="account_balance_wallet" size="md" color="var(--color-primary)" />
+          <atom-text variant="caption" color="muted">Lucro</atom-text>
+        </div>
+        <span class="stat__value" [class.stat__value--income]="profit() >= 0" [class.stat__value--expense]="profit() < 0">
+          {{ profit() | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </atom-card>
+
+    <atom-card>
+      <div class="stat">
+        <div class="stat__header">
+          <atom-icon name="percent" size="md" color="var(--color-warning)" />
+          <atom-text variant="caption" color="muted">% de Lucro</atom-text>
+        </div>
+        <span class="stat__value" [class.stat__value--income]="profitPercent() >= 0" [class.stat__value--expense]="profitPercent() < 0">
+          {{ profitPercent() | number:'1.1-1' }}%
+        </span>
+      </div>
+    </atom-card>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="dashboard__table-section">
+    <atom-card padding="none">
+    <div class="table-header">
+      <atom-heading [level]="5">Histórico de Transações</atom-heading>
+      <atom-text variant="caption" color="muted">{{ totalElements() }} transações</atom-text>
+    </div>
+
+    @if (loadingTx()) {
+      <div class="table-loading">
+        <atom-spinner size="lg" />
+      </div>
+    } @else if (transactions().length === 0) {
+      <div class="table-empty">
+        <atom-icon name="receipt_long" size="xl" color="var(--color-muted)" />
+        <atom-text color="muted">Nenhuma transação encontrada</atom-text>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th class="table__col-right">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of transactions(); track tx.id) {
+              <tr>
+                <td>{{ tx.date | date:'dd/MM/yyyy' }}</td>
+                <td class="table__desc">{{ tx.description }}</td>
+                <td>
+                  @if (tx.categoryName) {
+                    <span class="category-tag" [style.border-color]="tx.categoryColor">
+                      {{ tx.categoryName }}
+                    </span>
+                  } @else {
+                    <atom-text variant="caption" color="muted">—</atom-text>
+                  }
+                </td>
+                <td>
+                  <atom-badge
+                    [value]="tx.type === 'INCOME' ? 'Entrada' : 'Saída'"
+                    [variant]="tx.type === 'INCOME' ? 'success' : 'danger'"
+                  />
+                </td>
+                <td class="table__col-right" [class.table__col-income]="tx.type === 'INCOME'" [class.table__col-expense]="tx.type === 'EXPENSE'">
+                  {{ tx.type === 'EXPENSE' ? '-' : '+' }}{{ tx.amount | currency:'BRL':'symbol':'1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <atom-button variant="ghost" size="sm" [disabled]="currentPage() === 0" (clicked)="prevPage()">
+            <atom-icon name="chevron_left" size="sm" />
+          </atom-button>
+
+          @for (p of visiblePages(); track p) {
+            <button
+              class="pagination__page"
+              [class.pagination__page--active]="p === currentPage()"
+              (click)="goToPage(p)"
+            >
+              {{ p + 1 }}
+            </button>
+          }
+
+          <atom-button variant="ghost" size="sm" [disabled]="currentPage() === totalPages() - 1" (clicked)="nextPage()">
+            <atom-icon name="chevron_right" size="sm" />
+          </atom-button>
+        </div>
+      }
+    }
+  </atom-card>
+  </div>
+</div>
