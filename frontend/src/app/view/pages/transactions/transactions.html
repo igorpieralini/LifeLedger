@@ -1,0 +1,135 @@
+<div class="transactions">
+  <!-- Filters -->
+  <atom-card padding="sm">
+    <div class="filters">
+      <div class="filters__header">
+        <div class="filters__title">
+          <atom-icon name="filter_list" size="sm" />
+        </div>
+        @if (hasActiveFilters()) {
+          <atom-button variant="ghost" size="sm" (clicked)="clearFilters()">
+            <atom-icon name="close" size="sm" />
+            Limpar
+          </atom-button>
+        }
+      </div>
+
+      <div class="filters__grid">
+        <atom-select
+          label="Tipo"
+          name="type"
+          [options]="typeOptions"
+          placeholder=""
+          [(value)]="filterType"
+        />
+
+        <atom-select
+          label="Categoria"
+          name="category"
+          [options]="categoryOptions()"
+          placeholder=""
+          [(value)]="filterCategory"
+        />
+
+        <atom-date-range
+          label="Período"
+          [(dateFrom)]="filterDateFrom"
+          [(dateTo)]="filterDateTo"
+        />
+
+        <div class="filters__amount">
+          <atom-text tag="span" variant="caption">Valor</atom-text>
+          <div class="filters__amount-fields">
+            <atom-input
+              type="number"
+              placeholder="Mínimo"
+              name="minAmount"
+              [(value)]="filterMinAmount"
+            />
+            <atom-input
+              type="number"
+              placeholder="Máximo"
+              name="maxAmount"
+              [(value)]="filterMaxAmount"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </atom-card>
+
+  <!-- Table -->
+  <div class="transactions__table-section">
+    <atom-card padding="none">
+      <div class="table-header">
+        <atom-text variant="caption" color="muted">{{ totalElements() }} resultado(s)</atom-text>
+      </div>
+
+      @if (loading()) {
+        <div class="table-loading">
+          <atom-spinner size="lg" />
+        </div>
+      } @else if (transactions().length === 0) {
+        <div class="table-empty">
+          <atom-icon name="receipt_long" size="xl" color="var(--color-muted)" />
+          <atom-text color="muted">Nenhuma transação encontrada</atom-text>
+          @if (hasActiveFilters()) {
+            <atom-button variant="ghost" size="sm" (clicked)="clearFilters()">
+              Limpar filtros
+            </atom-button>
+          }
+        </div>
+      } @else {
+        <atom-table [hoverable]="true" [stickyHeader]="true" class="table-wrapper">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Tipo</th>
+                <th class="table__col-right">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of transactions(); track tx.id) {
+                <tr>
+                  <td>{{ tx.date | date:'dd/MM/yyyy' }}</td>
+                  <td class="table__desc">{{ tx.description }}</td>
+                  <td>
+                    @if (tx.categoryName) {
+                      <atom-badge
+                        variant="outline"
+                        [value]="tx.categoryName"
+                        [color]="tx.categoryColor"
+                      />
+                    } @else {
+                      <atom-text variant="caption" color="muted">—</atom-text>
+                    }
+                  </td>
+                  <td>
+                    <atom-badge
+                      [value]="tx.type === 'INCOME' ? 'Entrada' : 'Saída'"
+                      [variant]="tx.type === 'INCOME' ? 'success' : 'danger'"
+                    />
+                  </td>
+                  <td class="table__col-right"
+                      [class.table__col-income]="tx.type === 'INCOME'"
+                      [class.table__col-expense]="tx.type === 'EXPENSE'">
+                    {{ tx.type === 'EXPENSE' ? '-' : '+' }}{{ tx.amount | currency:'BRL':'symbol':'1.2-2' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </atom-table>
+
+        <!-- Pagination -->
+        <atom-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [visiblePages]="visiblePages()"
+          (pageChanged)="goToPage($event)"
+        />
+      }
+    </atom-card>
+  </div>
+</div>

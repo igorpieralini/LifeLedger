@@ -17,3 +17,5 @@ export { AtomCard } from './atom-card/atom-card';
 export { AtomSpinner } from './atom-spinner/atom-spinner';
 export { AtomTable } from './atom-table/atom-table';
 export { AtomNavItem } from './atom-nav-item/atom-nav-item';
+export { AtomDateRange } from './atom-date-range/atom-date-range';
+export { AtomPagination } from './atom-pagination/atom-pagination';

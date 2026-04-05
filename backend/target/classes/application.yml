@@ -80,3 +80,21 @@ logging:
     org.flywaydb: INFO
   pattern:
     console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} : %msg%n"
+
+# ─── LifeLedger custom properties ─────────────────────────────────────────────
+lifeledger:
+  cors:
+    allowed-origins: ${LIFELEDGER_CORS_ORIGINS:http://localhost:4200}
+  jwt:
+    secret: ${LIFELEDGER_JWT_SECRET:bGlmZWxlZGdlci1kZXYtc2VjcmV0LWtleS0yNTYtYml0cw==}
+    expiration-ms: 86400000
+  database:
+    host: ${LIFELEDGER_DB_HOST:localhost}
+    port: ${LIFELEDGER_DB_PORT:5432}
+    name: ${LIFELEDGER_DB_NAME:lifeledger}
+    username: ${LIFELEDGER_DB_USERNAME:postgres}
+    password: ${LIFELEDGER_DB_PASSWORD:postgres}
+    auto-create: true
+    pool:
+      minimum-idle: 2
+      maximum-pool-size: 10

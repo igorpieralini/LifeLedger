@@ -51,6 +51,15 @@ export interface CategoryLimitStatus {
   exceeded: boolean;
 }
 
+export interface TransactionFilter {
+  type?: 'INCOME' | 'EXPENSE';
+  categoryId?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  minAmount?: number;
+  maxAmount?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TransactionApiService {
   constructor(private api: ApiService) {}
@@ -59,8 +68,17 @@ export class TransactionApiService {
     return this.api.post<TransactionResponse>('/transactions', data);
   }
 
-  list(page = 0, size = 20): Observable<Page<TransactionResponse>> {
-    return this.api.get<Page<TransactionResponse>>('/transactions', { page, size });
+  list(page = 0, size = 20, filters?: TransactionFilter): Observable<Page<TransactionResponse>> {
+    const params: Record<string, string | number> = { page, size };
+    if (filters) {
+      if (filters.type) params['type'] = filters.type;
+      if (filters.categoryId) params['categoryId'] = filters.categoryId;
+      if (filters.dateFrom) params['dateFrom'] = filters.dateFrom;
+      if (filters.dateTo) params['dateTo'] = filters.dateTo;
+      if (filters.minAmount != null) params['minAmount'] = filters.minAmount;
+      if (filters.maxAmount != null) params['maxAmount'] = filters.maxAmount;
+    }
+    return this.api.get<Page<TransactionResponse>>('/transactions', params);
   }
 
   history(): Observable<TransactionResponse[]> {

@@ -18,7 +18,10 @@ import com.lifeledger.repository.UserRepository;
 import com.lifeledger.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +68,40 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository
                 .findByUserIdOrderByDateDescCreatedAtDesc(userId, pageable)
                 .map(TransactionResponse::from);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TransactionResponse> findFiltered(Long userId, String type, Long categoryId,
+                                                   LocalDate dateFrom, LocalDate dateTo,
+                                                   BigDecimal minAmount, BigDecimal maxAmount,
+                                                   Pageable pageable) {
+        Specification<Transaction> spec = (root, query, cb) -> {
+            var predicates = new ArrayList<jakarta.persistence.criteria.Predicate>();
+            predicates.add(cb.equal(root.get("user").get("id"), userId));
+            if (type != null) {
+                predicates.add(cb.equal(root.get("type"), Transaction.TransactionType.valueOf(type)));
+            }
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            if (dateFrom != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), dateFrom));
+            }
+            if (dateTo != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("date"), dateTo));
+            }
+            if (minAmount != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("amount"), minAmount));
+            }
+            if (maxAmount != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("amount"), maxAmount));
+            }
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+        Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "date").and(Sort.by(Sort.Direction.DESC, "createdAt")));
+        return transactionRepository.findAll(spec, sorted).map(TransactionResponse::from);
     }
 
     @Override

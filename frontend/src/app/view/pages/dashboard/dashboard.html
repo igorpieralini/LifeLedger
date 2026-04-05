@@ -68,8 +68,7 @@
         <atom-text color="muted">Nenhuma transação encontrada</atom-text>
       </div>
     } @else {
-      <div class="table-wrapper">
-        <table class="table">
+      <atom-table [hoverable]="true" class="table-wrapper">
           <thead>
             <tr>
               <th>Data</th>
@@ -86,9 +85,11 @@
                 <td class="table__desc">{{ tx.description }}</td>
                 <td>
                   @if (tx.categoryName) {
-                    <span class="category-tag" [style.border-color]="tx.categoryColor">
-                      {{ tx.categoryName }}
-                    </span>
+                    <atom-badge
+                      variant="outline"
+                      [value]="tx.categoryName"
+                      [color]="tx.categoryColor"
+                    />
                   } @else {
                     <atom-text variant="caption" color="muted">—</atom-text>
                   }
@@ -105,31 +106,15 @@
               </tr>
             }
           </tbody>
-        </table>
-      </div>
+        </atom-table>
 
       <!-- Pagination -->
-      @if (totalPages() > 1) {
-        <div class="pagination">
-          <atom-button variant="ghost" size="sm" [disabled]="currentPage() === 0" (clicked)="prevPage()">
-            <atom-icon name="chevron_left" size="sm" />
-          </atom-button>
-
-          @for (p of visiblePages(); track p) {
-            <button
-              class="pagination__page"
-              [class.pagination__page--active]="p === currentPage()"
-              (click)="goToPage(p)"
-            >
-              {{ p + 1 }}
-            </button>
-          }
-
-          <atom-button variant="ghost" size="sm" [disabled]="currentPage() === totalPages() - 1" (clicked)="nextPage()">
-            <atom-icon name="chevron_right" size="sm" />
-          </atom-button>
-        </div>
-      }
+      <atom-pagination
+        [currentPage]="currentPage()"
+        [totalPages]="totalPages()"
+        [visiblePages]="visiblePages()"
+        (pageChanged)="goToPage($event)"
+      />
     }
   </atom-card>
   </div>

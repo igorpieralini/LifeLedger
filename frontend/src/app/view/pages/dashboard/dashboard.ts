@@ -6,7 +6,8 @@ import { AtomText } from '../../../components/atoms/atom-text/atom-text';
 import { AtomHeading } from '../../../components/atoms/atom-heading/atom-heading';
 import { AtomBadge } from '../../../components/atoms/atom-badge/atom-badge';
 import { AtomSpinner } from '../../../components/atoms/atom-spinner/atom-spinner';
-import { AtomButton } from '../../../components/atoms/atom-button/atom-button';
+import { AtomTable } from '../../../components/atoms/atom-table/atom-table';
+import { AtomPagination } from '../../../components/atoms/atom-pagination/atom-pagination';
 import { TransactionApiService, Page } from '../../../services/transaction-api.service';
 import { TransactionResponse } from '../../../services/dashboard-api.service';
 
@@ -14,7 +15,8 @@ import { TransactionResponse } from '../../../services/dashboard-api.service';
   selector: 'page-dashboard',
   imports: [
     CurrencyPipe, DatePipe, DecimalPipe,
-    AtomCard, AtomIcon, AtomText, AtomHeading, AtomBadge, AtomSpinner, AtomButton,
+    AtomCard, AtomIcon, AtomText, AtomHeading, AtomBadge, AtomSpinner,
+    AtomTable, AtomPagination,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

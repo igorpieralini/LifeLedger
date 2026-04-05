@@ -7,6 +7,7 @@ import { Component, input } from '@angular/core';
 })
 export class AtomBadge {
   value = input<string | number>('');
-  variant = input<'primary' | 'danger' | 'success' | 'warning'>('primary');
+  variant = input<'primary' | 'danger' | 'success' | 'warning' | 'outline'>('primary');
   size = input<'sm' | 'md'>('sm');
+  color = input<string | null>(null);
 }

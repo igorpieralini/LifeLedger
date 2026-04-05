@@ -1,0 +1,25 @@
+@if (label()) {
+  <span class="date-range__label">{{ label() }}</span>
+}
+<div class="date-range">
+  <div class="date-range__field">
+    <label class="date-range__sublabel">{{ labelFrom() }}</label>
+    <input
+      type="date"
+      class="date-range__input"
+      [disabled]="disabled()"
+      [(ngModel)]="dateFrom"
+      (ngModelChange)="onChanged()"
+    />
+  </div>
+  <div class="date-range__field">
+    <label class="date-range__sublabel">{{ labelTo() }}</label>
+    <input
+      type="date"
+      class="date-range__input"
+      [disabled]="disabled()"
+      [(ngModel)]="dateTo"
+      (ngModelChange)="onChanged()"
+    />
+  </div>
+</div>

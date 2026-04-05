@@ -1,9 +1,9 @@
 import { Component, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AtomIcon } from '../../atoms/atom-icon/atom-icon';
 import { AtomText } from '../../atoms/atom-text/atom-text';
 import { AtomDivider } from '../../atoms/atom-divider/atom-divider';
 import { AtomHeading } from '../../atoms/atom-heading/atom-heading';
+import { AtomNavItem } from '../../atoms/atom-nav-item/atom-nav-item';
 
 export interface SidebarItem {
   icon: string;
@@ -19,7 +19,7 @@ export interface SidebarGroup {
 
 @Component({
   selector: 'shared-sidebar',
-  imports: [RouterLink, RouterLinkActive, AtomIcon, AtomText, AtomDivider, AtomHeading],
+  imports: [AtomIcon, AtomText, AtomDivider, AtomHeading, AtomNavItem],
   templateUrl: './shared-sidebar.html',
   styleUrl: './shared-sidebar.scss',
 })

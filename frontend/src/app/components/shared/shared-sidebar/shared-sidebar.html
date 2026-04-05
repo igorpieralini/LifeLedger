@@ -17,21 +17,14 @@
       }
 
       @for (item of group.items; track item.route) {
-        <a
-          class="sidebar__item"
-          [routerLink]="item.route"
-          routerLinkActive="sidebar__item--active"
-          [title]="item.label"
-          (click)="itemClicked.emit(item)"
-        >
-          <atom-icon [name]="item.icon" size="md" />
-          @if (!collapsed()) {
-            <span class="sidebar__item-label">{{ item.label }}</span>
-          }
-          @if (item.badge && !collapsed()) {
-            <span class="sidebar__item-badge">{{ item.badge }}</span>
-          }
-        </a>
+        <atom-nav-item
+          [icon]="item.icon"
+          [label]="item.label"
+          [route]="item.route"
+          [badge]="item.badge ?? null"
+          [collapsed]="collapsed()"
+          (clicked)="itemClicked.emit(item)"
+        />
       }
 
       @if (!$last) {
