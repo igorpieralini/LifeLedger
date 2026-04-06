@@ -1,0 +1,127 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__loading,
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    flex: 1;
+  }
+}
+
+// ── Form ────────────────────────────────────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0.75rem;
+    align-items: end;
+
+    @media (max-width: 768px) { grid-template-columns: 1fr; }
+  }
+
+  &__colors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__preview-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.color-swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.15s ease;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &--active {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px var(--color-primary);
+    transform: scale(1.15);
+  }
+}
+
+// ── Category sections ───────────────────────────────────────────────────────
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.cat-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 0.75rem;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.1s ease;
+
+  &:hover { background: var(--color-hover); border-radius: 0.375rem; }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+}

@@ -1,0 +1,107 @@
+<div class="limits">
+  <!-- Header -->
+  <div class="limits__header">
+    <div>
+      <atom-heading [level]="4">Limites por Categoria</atom-heading>
+      <atom-text variant="caption" color="muted">
+        {{ configuredCount() }} de {{ items().length }} categorias com limite configurado
+      </atom-text>
+    </div>
+    <atom-card padding="sm" class="limits__total">
+      <div class="total-card">
+        <atom-text variant="caption" color="muted">Total em limites</atom-text>
+        <atom-text variant="bold">{{ totalLimits() | currency:'BRL':'symbol':'1.2-2' }}</atom-text>
+      </div>
+    </atom-card>
+  </div>
+
+  @if (loading()) {
+    <div class="limits__loading">
+      <atom-spinner size="lg" />
+    </div>
+  } @else if (items().length === 0) {
+    <div class="limits__empty">
+      <atom-icon name="tune" size="xl" color="var(--color-muted)" />
+      <atom-text color="muted">Nenhuma categoria encontrada</atom-text>
+    </div>
+  } @else {
+    <atom-card padding="none" class="limits__card">
+      <div class="limit-list">
+        @for (item of items(); track item.category.id) {
+          <div class="limit-row" [class.limit-row--editing]="item.editing">
+            <!-- Category info -->
+            <div class="limit-row__info">
+              <atom-icon
+                [name]="item.category.icon || 'category'"
+                size="md"
+                [color]="item.category.color || 'var(--color-muted)'"
+              />
+              <div class="limit-row__name">
+                <atom-text>{{ item.category.name }}</atom-text>
+                <atom-text variant="caption" color="muted">
+                  {{ item.category.type === 'FIXED' ? 'Fixa' : 'Variável' }}
+                </atom-text>
+              </div>
+            </div>
+
+            <!-- Limit value display / edit -->
+            <div class="limit-row__actions">
+              @if (item.editing) {
+                <div class="limit-row__edit">
+                  <div class="limit-input-wrapper">
+                    <span class="limit-input-prefix">R$</span>
+                    <input
+                      class="limit-input"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="0,00"
+                      [ngModel]="item.editValue"
+                      (ngModelChange)="item.editValue = $event"
+                      (keyup.enter)="saveLimit(item)"
+                      (keyup.escape)="cancelEdit()"
+                    />
+                  </div>
+                  <atom-button size="sm" [disabled]="item.saving" (clicked)="saveLimit(item)">
+                    @if (item.saving) {
+                      <atom-spinner size="sm" />
+                    } @else {
+                      <atom-icon name="check" size="sm" />
+                    }
+                  </atom-button>
+                  <atom-button variant="ghost" size="sm" (clicked)="cancelEdit()">
+                    <atom-icon name="close" size="sm" />
+                  </atom-button>
+                </div>
+              } @else {
+                <div class="limit-row__display">
+                  @if (item.limit) {
+                    <atom-text variant="bold">
+                      {{ item.limit.limitAmount | currency:'BRL':'symbol':'1.2-2' }}
+                    </atom-text>
+                    <atom-button variant="ghost" size="sm" (clicked)="startEdit(item)">
+                      <atom-icon name="edit" size="sm" color="var(--color-muted)" />
+                    </atom-button>
+                    <atom-button variant="ghost" size="sm" [disabled]="item.saving" (clicked)="removeLimit(item)">
+                      @if (item.saving) {
+                        <atom-spinner size="sm" />
+                      } @else {
+                        <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
+                      }
+                    </atom-button>
+                  } @else {
+                    <atom-text variant="caption" color="muted">Sem limite</atom-text>
+                    <atom-button variant="ghost" size="sm" (clicked)="startEdit(item)">
+                      <atom-icon name="add" size="sm" color="var(--color-primary)" />
+                      <atom-text variant="caption" color="default">Definir</atom-text>
+                    </atom-button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </atom-card>
+  }
+</div>

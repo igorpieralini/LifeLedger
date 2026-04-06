@@ -1,0 +1,13 @@
+<div class="alert-container">
+  @for (alert of alertService.alerts(); track alert.id) {
+    <div class="alert" [class]="'alert alert--' + alert.variant">
+      @if (alert.icon) {
+        <atom-icon [name]="alert.icon" size="sm" />
+      }
+      <span class="alert__message">{{ alert.message }}</span>
+      <button class="alert__dismiss" (click)="alertService.dismiss(alert.id)">
+        <atom-icon name="close" size="sm" />
+      </button>
+    </div>
+  }
+</div>

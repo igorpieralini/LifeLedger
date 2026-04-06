@@ -2,3 +2,4 @@ export { SharedSidebar, type SidebarItem, type SidebarGroup } from './shared-sid
 export { SharedHeader } from './shared-header/shared-header';
 export { SharedFooter } from './shared-footer/shared-footer';
 export { SharedMaster } from './shared-master/shared-master';
+export { SharedPopup } from './shared-popup/shared-popup';

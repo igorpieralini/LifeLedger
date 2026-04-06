@@ -19,3 +19,5 @@ export { AtomTable } from './atom-table/atom-table';
 export { AtomNavItem } from './atom-nav-item/atom-nav-item';
 export { AtomDateRange } from './atom-date-range/atom-date-range';
 export { AtomPagination } from './atom-pagination/atom-pagination';
+export { AtomAlert } from './atom-alert/atom-alert';
+export { AlertService, type AlertItem } from './atom-alert/alert.service';

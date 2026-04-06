@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AtomAlert } from './components/atoms/atom-alert/atom-alert';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AtomAlert],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
