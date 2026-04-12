@@ -2,10 +2,6 @@ package com.lifeledger.service.impl;
 
 import java.util.List;
 
-/**
- * Classifica transações financeiras a partir de palavras-chave na descrição.
- * Extensível: basta adicionar novas Rules na lista RULES.
- */
 public final class CategoryMatcher {
 
     public record Match(String categoryName, String color, String icon) {}
@@ -16,7 +12,6 @@ public final class CategoryMatcher {
 
     private static final List<Rule> RULES = List.of(
 
-        // ── Renda ──────────────────────────────────────────────────────────────
         new Rule("Salário",            "#10b981", "payments",
                 "SALARIO", "SALÁRIO", "PAGAMENTO SALARIO", "PGTO SAL",
                 "REMUNERACAO", "REMUNERAÇÃO", "PROVENTO", "FOLHA PGTO"),
@@ -24,16 +19,15 @@ public final class CategoryMatcher {
         new Rule("Investimentos",      "#0d9488", "trending_up",
                 "RESGATE", "RENDIMENTO", "REND PAGO",
                 "APLICACAO", "APLICAÇÃO",
-                "COR OPERACOES",        // operações na B3 (Itaú)
+                "COR OPERACOES",
                 "INVEST", "FUNDO ", "CDB ", "TESOURO"),
 
         new Rule("Outros Ganhos",      "#059669", "attach_money",
                 "PIX RECEBIDO", "TRANSFERENCIA RECEBIDA", "TED RECEBIDO",
-                "PIX ORIGEM CARTAO",    // estorno/cashback de cartão (Itaú)
-                "DEP DIN",              // depósito em dinheiro no ATM (Itaú)
+                "PIX ORIGEM CARTAO",
+                "DEP DIN",
                 "DEPOSITO", "REEMBOLSO", "DEVOLUCAO"),
 
-        // ── Alimentação ────────────────────────────────────────────────────────
         new Rule("Restaurante",        "#f59e0b", "restaurant",
                 "IFOOD", "RAPPI", "UBER EATS", "UBEREATS",
                 "RESTAURANTE", "LANCHONETE", "LANCHE", "HAMBURGUER",
@@ -128,7 +122,7 @@ public final class CategoryMatcher {
                 "DARF", "GPS ", "FGTS", "TRIBUTO", "ARRECADACAO"),
 
         new Rule("Taxas Bancárias",    "#f43f5e", "account_balance",
-                "TARIFA", "JUROS", "IOF", "TAXA ",    // "IOF" sem espaço — aparece isolado no extrato Itaú
+                "TARIFA", "JUROS", "IOF", "TAXA ",
                 "ANUIDADE", "SEGURO CARTAO", "STARK BANK",
                 "CONSORCIO", "CONSÓRCIO")
     );

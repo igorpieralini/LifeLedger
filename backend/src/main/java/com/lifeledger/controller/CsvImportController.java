@@ -8,10 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Endpoint para importação de extratos bancários em formato CSV.
- * POST /transactions/import  (multipart/form-data, campo "file")
- */
 @RestController
 @RequestMapping("/transactions/import")
 @RequiredArgsConstructor

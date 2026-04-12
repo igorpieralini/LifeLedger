@@ -7,11 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Resultado de uma importação de CSV/PDF financeiro.
- * <p>
- * {@code totalRows = imported + duplicates + skipped}
- */
 public record CsvImportResult(
         int totalRows,
         int imported,
@@ -25,7 +20,6 @@ public record CsvImportResult(
         List<SkippedRow>  skippedRows
 ) {
 
-    /** Transação importada com sucesso. */
     public record ImportedRow(
             String          description,
             LocalDate       date,
@@ -34,7 +28,6 @@ public record CsvImportResult(
             String          category
     ) {}
 
-    /** Linha ignorada durante o processamento. */
     public record SkippedRow(
             int    line,
             String raw,

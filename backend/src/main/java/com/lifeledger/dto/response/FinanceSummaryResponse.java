@@ -3,9 +3,6 @@ package com.lifeledger.dto.response;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Monthly financial summary used by the dashboard and charts.
- */
 public record FinanceSummaryResponse(
         int year,
         int month,

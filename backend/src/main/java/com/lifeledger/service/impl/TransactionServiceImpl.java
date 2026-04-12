@@ -144,19 +144,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public FinanceSummaryResponse getSummary(Long userId, int year, int month) {
-        LocalDate from = LocalDate.of(year, month, 1);
-        LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
-
-        BigDecimal income = transactionRepository
-                .sumByUserIdAndTypeAndDateBetween(userId, TransactionType.INCOME, from, to);
-        BigDecimal expense = transactionRepository
-                .sumByUserIdAndTypeAndDateBetween(userId, TransactionType.EXPENSE, from, to);
-        BigDecimal balance = income.subtract(expense);
-
-        // Category breakdown
-        List<Object[]> rows = transactionRepository.expensesByCategoryBetween(userId, from, to);
         List<CategoryBreakdown> breakdown = new ArrayList<>();
         for (Object[] row : rows) {
             String name  = (String)     row[0];
@@ -212,15 +199,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private String normalizeCategoryName(String name) {
-        if (name == null) return "";
-        String noAccents = Normalizer.normalize(name, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
-        return noAccents.toLowerCase().trim();
-    }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private Transaction getTransaction(Long id, Long userId) {
         return transactionRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Transaction", id));
     }

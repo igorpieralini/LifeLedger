@@ -75,7 +75,6 @@ public class GoalServiceImpl implements GoalService {
         Goal goal = getGoal(id, userId);
         goal.setCurrentValue(request.currentValue());
 
-        // Recalculate progress percentage when a target exists
         if (goal.getTargetValue() != null && goal.getTargetValue().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal pct = request.currentValue()
                     .divide(goal.getTargetValue(), 4, RoundingMode.HALF_UP)
@@ -110,7 +109,6 @@ public class GoalServiceImpl implements GoalService {
         goalRepository.delete(goal);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Goal getGoal(Long id, Long userId) {
         return goalRepository.findByIdAndUserId(id, userId)
