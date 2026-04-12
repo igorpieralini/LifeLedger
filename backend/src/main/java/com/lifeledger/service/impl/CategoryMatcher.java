@@ -2,10 +2,6 @@ package com.lifeledger.service.impl;
 
 import java.util.List;
 
-/**
- * Classifica transações financeiras a partir de palavras-chave na descrição.
- * Extensível: basta adicionar novas Rules na lista RULES.
- */
 public final class CategoryMatcher {
 
     public record Match(String categoryName, String color, String icon) {}
@@ -16,7 +12,6 @@ public final class CategoryMatcher {
 
     private static final List<Rule> RULES = List.of(
 
-        // ── Renda ──────────────────────────────────────────────────────────────
         new Rule("Salário",            "#10b981", "payments",
                 "SALARIO", "SALÁRIO", "PAGAMENTO SALARIO", "PGTO SAL",
                 "REMUNERACAO", "REMUNERAÇÃO", "PROVENTO", "FOLHA PGTO"),
@@ -24,16 +19,15 @@ public final class CategoryMatcher {
         new Rule("Investimentos",      "#0d9488", "trending_up",
                 "RESGATE", "RENDIMENTO", "REND PAGO",
                 "APLICACAO", "APLICAÇÃO",
-                "COR OPERACOES",        // operações na B3 (Itaú)
+                "COR OPERACOES",
                 "INVEST", "FUNDO ", "CDB ", "TESOURO"),
 
         new Rule("Outros Ganhos",      "#059669", "attach_money",
                 "PIX RECEBIDO", "TRANSFERENCIA RECEBIDA", "TED RECEBIDO",
-                "PIX ORIGEM CARTAO",    // estorno/cashback de cartão (Itaú)
-                "DEP DIN",              // depósito em dinheiro no ATM (Itaú)
+                "PIX ORIGEM CARTAO",
+                "DEP DIN",
                 "DEPOSITO", "REEMBOLSO", "DEVOLUCAO"),
 
-        // ── Alimentação ────────────────────────────────────────────────────────
         new Rule("Restaurante",        "#f59e0b", "restaurant",
                 "IFOOD", "RAPPI", "UBER EATS", "UBEREATS",
                 "RESTAURANTE", "LANCHONETE", "LANCHE", "HAMBURGUER",
@@ -46,7 +40,6 @@ public final class CategoryMatcher {
                 "ATACADAO", "ASSAI", "WALMART", "SACOLAO",
                 "HORTIFRUTI", "FEIRA "),
 
-        // ── Transporte ─────────────────────────────────────────────────────────
         new Rule("App de Transporte",  "#6366f1", "local_taxi",
                 "UBER", "99POP", "99PAY", "99 TECNO", "99FOOD",
                 "TAXI", "CABIFY", "INDRIVER", "BOLT "),
@@ -64,7 +57,6 @@ public final class CategoryMatcher {
                 "ONIBUS", "BRT ", "METRÔ", "AUTOPASS", "CARTAO BUS",
                 "PASSE RAPIDO"),
 
-        // ── Moradia ────────────────────────────────────────────────────────────
         new Rule("Aluguel",            "#8b5cf6", "home",
                 "ALUGUEL", "CONDOMINIO", "CONDOMÍNIO", "IPTU"),
 
@@ -81,7 +73,6 @@ public final class CategoryMatcher {
                 "VIVO ", "CLARO ", "TIM ", "OI ", "NEXTEL",
                 "TELECOM"),
 
-        // ── Compras ────────────────────────────────────────────────────────────
         new Rule("Compras Online",     "#ec4899", "shopping_bag",
                 "AMAZON", "SHOPEE", "MERCADO LIVRE", "MERCADOLIVRE",
                 "ALIEXPRESS", "MAGAZINE LUIZA", "MAGALU",
@@ -92,7 +83,6 @@ public final class CategoryMatcher {
                 "ZARA", "RENNER", "RIACHUELO", "HERING",
                 "C&A", "MARISA", "LOJAS "),
 
-        // ── Lazer ──────────────────────────────────────────────────────────────
         new Rule("Streaming",          "#a855f7", "movie",
                 "NETFLIX", "SPOTIFY", "DISNEY", "HBO",
                 "AMAZON PRIME", "DEEZER", "YOUTUBE PREMIUM",
@@ -102,7 +92,6 @@ public final class CategoryMatcher {
                 "CINEMA", "INGRESSO", "TEATRO", "SHOW ",
                 "EVENTO ", "PARQUE ", "BOWLING"),
 
-        // ── Saúde ──────────────────────────────────────────────────────────────
         new Rule("Farmácia",           "#10b981", "local_pharmacy",
                 "FARMACIA", "FARMÁCIA", "DROGARIA",
                 "DROGA", "ULTRAFARMA", "PACHECO"),
@@ -111,14 +100,12 @@ public final class CategoryMatcher {
                 "PLANO DE SAUDE", "HAPVIDA", "UNIMED", "BRADESCO SAUDE",
                 "SULAMERICA", "AMIL ", "NOTREDAME"),
 
-        // ── Educação ───────────────────────────────────────────────────────────
         new Rule("Educação",           "#6366f1", "school",
                 "CURSO ", "FACULDADE", "ESCOLA ", "COLEGIO",
                 "UDEMY", "ALURA", "COURSERA", "ROCKETSEAT",
                 "MENSALIDADE", "FUNDACAO EDUCACIONAL", "FUNDAÇÃO",
                 "UNIV ", "UNIVERSIDADE", "COLEGIO"),
 
-        // ── Financeiro ─────────────────────────────────────────────────────────
         new Rule("Fatura do cartão",   "#fb7185", "credit_card",
                 "FATURA PAGA", "PAGAMENTO FATURA", "PAG FATURA",
                 "FATURA CARTAO", "FATURA CARTÃO"),
@@ -128,7 +115,7 @@ public final class CategoryMatcher {
                 "DARF", "GPS ", "FGTS", "TRIBUTO", "ARRECADACAO"),
 
         new Rule("Taxas Bancárias",    "#f43f5e", "account_balance",
-                "TARIFA", "JUROS", "IOF", "TAXA ",    // "IOF" sem espaço — aparece isolado no extrato Itaú
+                "TARIFA", "JUROS", "IOF", "TAXA ",
                 "ANUIDADE", "SEGURO CARTAO", "STARK BANK",
                 "CONSORCIO", "CONSÓRCIO")
     );

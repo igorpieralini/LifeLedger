@@ -15,17 +15,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-/**
- * Configura o DataSource com criação automática do banco PostgreSQL.
- *
- * Decisão de design:
- * O Spring Boot não cria bancos PostgreSQL automaticamente (diferente do H2).
- * Esta configuração resolve isso conectando ao banco 'postgres' (admin) antes
- * de criar a DataSource principal, verificando e criando o banco alvo se necessário.
- *
- * Flyway e JPA dependem da DataSource, portanto as migrações só rodam após
- * a garantia de que o banco existe — sem necessidade de configuração manual.
- */
 @Configuration
 @Slf4j
 public class DataSourceConfig {
@@ -63,13 +52,6 @@ public class DataSourceConfig {
     @Value("${lifeledger.database.pool.max-lifetime:1800000}")
     private long maxLifetime;
 
-    /**
-     * DataSource primário da aplicação.
-     *
-     * O método createDatabaseIfNotExists() é invocado DENTRO do @Bean — isso
-     * garante que o banco exista antes que Flyway e JPA tentem se conectar,
-     * pois ambos dependem deste bean via auto-configuração do Spring Boot.
-     */
     @Bean
     @Primary
     public DataSource dataSource() {
@@ -79,10 +61,7 @@ public class DataSourceConfig {
         return buildHikariDataSource();
     }
 
-    // ── Internals ─────────────────────────────────────────────────────────────
-
     private void createDatabaseIfNotExists() {
-        // Conecta ao banco 'postgres' (sempre existe) para verificar/criar o alvo
         String adminUrl = String.format("jdbc:postgresql://%s:%d/postgres", host, port);
 
         log.info("Checking database '{}' on {}:{}...", dbName, host, port);
@@ -90,14 +69,12 @@ public class DataSourceConfig {
         try (Connection conn = DriverManager.getConnection(adminUrl, username, password);
              Statement stmt = conn.createStatement()) {
 
-            // pg_database é o catálogo de bancos do PostgreSQL
             ResultSet rs = stmt.executeQuery(
                     "SELECT 1 FROM pg_database WHERE datname = '" + sanitize(dbName) + "'"
             );
 
             if (!rs.next()) {
                 log.info("Database '{}' not found. Creating...", dbName);
-                // CREATE DATABASE não aceita parâmetros preparados — sanitizamos o nome
                 stmt.execute("CREATE DATABASE \"" + sanitize(dbName) + "\"");
                 log.info("Database '{}' created successfully.", dbName);
             } else {
@@ -120,18 +97,15 @@ public class DataSourceConfig {
         config.setPassword(password);
         config.setDriverClassName("org.postgresql.Driver");
 
-        // Pool settings
         config.setMinimumIdle(minimumIdle);
         config.setMaximumPoolSize(maxPoolSize);
         config.setConnectionTimeout(connectionTimeout);
         config.setIdleTimeout(idleTimeout);
         config.setMaxLifetime(maxLifetime);
 
-        // Validação de conexão
         config.setConnectionTestQuery("SELECT 1");
         config.setPoolName("LifeLedger-HikariPool");
 
-        // Performance
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -141,10 +115,6 @@ public class DataSourceConfig {
         return new HikariDataSource(config);
     }
 
-    /**
-     * Previne SQL injection no nome do banco.
-     * Aceita apenas letras, números, underscores e hífens.
-     */
     private String sanitize(String name) {
         if (!name.matches("[a-zA-Z0-9_\\-]+")) {
             throw new IllegalArgumentException("Invalid database name: " + name);

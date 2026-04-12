@@ -39,7 +39,6 @@ public class CsvImportServiceImpl implements CsvImportService {
     private final CategoryRepository    categoryRepository;
     private final UserRepository        userRepository;
 
-    /** Linha válida do CSV após o parse inicial. */
     private record CsvRow(int lineNum, String raw, LocalDate date, String desc, BigDecimal amount) {}
 
     @Override
@@ -52,7 +51,6 @@ public class CsvImportServiceImpl implements CsvImportService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
-        // ── Fase 1: parse completo do arquivo ────────────────────────────────
         List<CsvRow>     validRows = new ArrayList<>();
         List<SkippedRow> skipped   = new ArrayList<>();
 
@@ -104,10 +102,8 @@ public class CsvImportServiceImpl implements CsvImportService {
             throw new BusinessException("Erro ao processar arquivo: " + ex.getMessage());
         }
 
-        // ── Fase 2: fingerprints das transações já existentes ─────────────────
         Set<String> existing = buildExistingFingerprints(user.getId(), validRows);
 
-        // ── Fase 3: salvar somente as novas ───────────────────────────────────
         Map<String, Category> categoryCache = new HashMap<>();
         List<ImportedRow>     imported      = new ArrayList<>();
         int        duplicates   = 0;
@@ -168,7 +164,6 @@ public class CsvImportServiceImpl implements CsvImportService {
         );
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Set<String> buildExistingFingerprints(Long userId, List<CsvRow> rows) {
         if (rows.isEmpty()) return new HashSet<>();
@@ -206,7 +201,6 @@ public class CsvImportServiceImpl implements CsvImportService {
                 || upper.contains("DESCR") || upper.contains("VALOR");
     }
 
-    /** Lida com CSV separado por vírgula ou ponto-e-vírgula, respeitando campos entre aspas. */
     private String[] parseLine(String line) {
         char sep = line.contains(";") ? ';' : ',';
         List<String> fields = new ArrayList<>();
@@ -227,7 +221,6 @@ public class CsvImportServiceImpl implements CsvImportService {
         return fields.toArray(String[]::new);
     }
 
-    /** Aceita dd/MM/yyyy e yyyy-MM-dd. */
     private LocalDate parseDate(String raw) {
         try { return LocalDate.parse(raw, BR_DATE); }
         catch (DateTimeParseException ignored) {}
@@ -236,23 +229,16 @@ public class CsvImportServiceImpl implements CsvImportService {
         throw new IllegalArgumentException("Data inválida: \"" + raw + "\"");
     }
 
-    /**
-     * Converte string de valor monetário para BigDecimal.
-     * Suporta formatos: -1234.56  |  -1.234,56  |  -1234,56
-     */
     private BigDecimal parseAmount(String raw) {
         String s = raw.replaceAll("[^\\d.,\\-]", "").trim();
         if (s.isBlank()) throw new IllegalArgumentException("Valor vazio");
 
-        // Formato brasileiro: vírgula como separador decimal (ex: 1.234,56 ou 1234,56)
         if (s.matches("-?\\d{1,3}(\\.\\d{3})*(,\\d{1,2})?") && s.contains(",")) {
             s = s.replace(".", "").replace(",", ".");
         }
-        // Apenas vírgula decimal sem separador de milhar (ex: 1234,56)
         else if (s.matches("-?\\d+,\\d{1,2}")) {
             s = s.replace(",", ".");
         }
-        // Formato US: ponto como separador decimal — remove apenas vírgulas de milhar
         else {
             s = s.replace(",", "");
         }

@@ -42,7 +42,6 @@ public class PdfImportServiceImpl implements PdfImportService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
-        // Extrai e faz parse do PDF
         ParseResult parsed;
         try {
             parsed = ItauPdfParser.parse(file);
@@ -57,13 +56,10 @@ public class PdfImportServiceImpl implements PdfImportService {
         BigDecimal totalIncome  = BigDecimal.ZERO;
         BigDecimal totalExpense = BigDecimal.ZERO;
 
-        // Linhas que o parser rejeitou antes de chegar aqui
         for (String msg : parsed.skippedLines()) {
             skipped.add(new SkippedRow(0, msg, "Formato não reconhecido"));
         }
 
-        // Carrega fingerprints das transações já existentes no intervalo do extrato
-        // para detectar duplicatas sem fazer um SELECT por linha.
         Set<String> existing = buildExistingFingerprints(user.getId(), parsed.rows());
 
         for (ParsedRow row : parsed.rows()) {
@@ -92,7 +88,6 @@ public class PdfImportServiceImpl implements PdfImportService {
 
                 transactionRepository.save(tx);
 
-                // Adiciona à lista de existentes para evitar duplicatas dentro do mesmo arquivo
                 existing.add(fp);
 
                 imported.add(new ImportedRow(
@@ -125,12 +120,7 @@ public class PdfImportServiceImpl implements PdfImportService {
         );
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /**
-     * Carrega as transações do usuário no intervalo de datas do extrato e
-     * devolve um Set de fingerprints para lookup O(1).
-     */
     private Set<String> buildExistingFingerprints(Long userId, List<ParsedRow> rows) {
         if (rows.isEmpty()) return new HashSet<>();
 
@@ -143,7 +133,6 @@ public class PdfImportServiceImpl implements PdfImportService {
         return fps;
     }
 
-    /** Chave de identidade de uma transação: data|descrição(lowercase)|valor absoluto */
     private static String fingerprint(LocalDate date, String description, BigDecimal amount) {
         return date + "|" + description.toLowerCase() + "|" + amount.toPlainString();
     }

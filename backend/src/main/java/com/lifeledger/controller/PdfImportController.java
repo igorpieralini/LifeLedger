@@ -8,10 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Endpoint para importação de extratos bancários em formato PDF (Itaú).
- * POST /transactions/import/pdf  (multipart/form-data, campo "file")
- */
 @RestController
 @RequestMapping("/transactions/import/pdf")
 @RequiredArgsConstructor

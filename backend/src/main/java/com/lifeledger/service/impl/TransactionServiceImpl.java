@@ -155,7 +155,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .sumByUserIdAndTypeAndDateBetween(userId, TransactionType.EXPENSE, from, to);
         BigDecimal balance = income.subtract(expense);
 
-        // Category breakdown
         List<Object[]> rows = transactionRepository.expensesByCategoryBetween(userId, from, to);
         List<CategoryBreakdown> breakdown = new ArrayList<>();
         for (Object[] row : rows) {
@@ -217,8 +216,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .replaceAll("\\p{M}", "");
         return noAccents.toLowerCase().trim();
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Transaction getTransaction(Long id, Long userId) {
         return transactionRepository.findByIdAndUserId(id, userId)

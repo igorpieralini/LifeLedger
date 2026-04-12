@@ -64,21 +64,18 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private Bucket createBucket(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        // Endpoints de autenticação têm limites mais agressivos
         if (path.contains("/auth/login") || path.contains("/auth/register")) {
             return Bucket.builder()
                     .addLimit(Bandwidth.builder().capacity(10).refillGreedy(10, Duration.ofMinutes(1)).build())
                     .build();
         }
 
-        // Upload de arquivos
         if (path.contains("/import")) {
             return Bucket.builder()
                     .addLimit(Bandwidth.builder().capacity(5).refillGreedy(5, Duration.ofMinutes(1)).build())
                     .build();
         }
 
-        // Endpoints normais
         return Bucket.builder()
                 .addLimit(Bandwidth.builder().capacity(60).refillGreedy(60, Duration.ofMinutes(1)).build())
                 .build();
