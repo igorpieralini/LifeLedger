@@ -134,8 +134,6 @@
   justify-content: center;
   gap: 0.3rem;
   padding: 0.4rem;
-  border-radius: 0.6rem;
-  background: var(--color-border);
 }
 
 .monthly-chart__bar {
@@ -244,6 +242,22 @@
   &--expense { background: var(--color-danger); }
 }
 
+.split-chart__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--color-border);
+  align-self: stretch;
+  justify-content: center;
+}
+
+.split-chart__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
 .daily-chart {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -269,8 +283,6 @@
   justify-content: center;
   gap: 0.25rem;
   padding: 0.35rem;
-  border-radius: 0.5rem;
-  background: var(--color-border);
 }
 
 .daily-chart__bar {

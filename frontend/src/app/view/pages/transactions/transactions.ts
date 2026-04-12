@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed, effect, untracked } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AtomCard } from '../../../components/atoms/atom-card/atom-card';
 import { AtomIcon } from '../../../components/atoms/atom-icon/atom-icon';
 import { AtomText } from '../../../components/atoms/atom-text/atom-text';
 import { AtomBadge } from '../../../components/atoms/atom-badge/atom-badge';
@@ -10,7 +9,6 @@ import { AtomButton } from '../../../components/atoms/atom-button/atom-button';
 import { AtomSelect, SelectOption } from '../../../components/atoms/atom-select/atom-select';
 import { AtomInput } from '../../../components/atoms/atom-input/atom-input';
 import { AtomDateRange } from '../../../components/atoms/atom-date-range/atom-date-range';
-import { AtomTable } from '../../../components/atoms/atom-table/atom-table';
 import { AtomPagination } from '../../../components/atoms/atom-pagination/atom-pagination';
 import { TransactionApiService, TransactionFilter, Page } from '../../../services/transaction-api.service';
 import { TransactionResponse } from '../../../services/dashboard-api.service';
@@ -20,9 +18,9 @@ import { CategoryApiService, CategoryResponse } from '../../../services/category
   selector: 'page-transactions',
   imports: [
     CurrencyPipe, DatePipe, FormsModule,
-    AtomCard, AtomIcon, AtomText, AtomBadge,
+    AtomIcon, AtomText, AtomBadge,
     AtomSpinner, AtomButton, AtomSelect, AtomInput, AtomDateRange,
-    AtomTable, AtomPagination,
+    AtomPagination,
   ],
   templateUrl: './transactions.html',
   styleUrl: './transactions.scss',

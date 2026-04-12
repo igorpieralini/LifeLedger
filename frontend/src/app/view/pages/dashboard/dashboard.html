@@ -141,6 +141,20 @@
                   </div>
                 </div>
               </div>
+              <div class="split-chart__stats">
+                <div class="split-chart__stat">
+                  <atom-text variant="caption" color="muted">Ticket médio · Entrada</atom-text>
+                  <atom-text color="success">{{ avgIncome() | currency:'BRL':'symbol':'1.2-2' }}</atom-text>
+                </div>
+                <div class="split-chart__stat">
+                  <atom-text variant="caption" color="muted">Ticket médio · Saída</atom-text>
+                  <atom-text color="danger">{{ avgExpense() | currency:'BRL':'symbol':'1.2-2' }}</atom-text>
+                </div>
+                <div class="split-chart__stat">
+                  <atom-text variant="caption" color="muted">Saldo líquido</atom-text>
+                  <atom-text [color]="profit() >= 0 ? 'success' : 'danger'">{{ profit() | currency:'BRL':'symbol':'1.2-2' }}</atom-text>
+                </div>
+              </div>
             </div>
           </div>
         </atom-card>

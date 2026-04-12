@@ -107,6 +107,16 @@ export class DashboardPage implements OnInit {
   incomeCount = computed(() => this.allTransactions().filter(tx => tx.type === 'INCOME').length);
   expenseCount = computed(() => this.allTransactions().filter(tx => tx.type === 'EXPENSE').length);
 
+  avgIncome = computed(() => {
+    const count = this.incomeCount();
+    return count > 0 ? this.totalIncome() / count : 0;
+  });
+
+  avgExpense = computed(() => {
+    const count = this.expenseCount();
+    return count > 0 ? this.totalExpense() / count : 0;
+  });
+
   incomeShare = computed(() => {
     const total = this.totalIncome() + this.totalExpense();
     if (total === 0) return 0;
