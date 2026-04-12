@@ -10,8 +10,8 @@ plugg-secrets.properties
 application.yml
 
 # ─── Java / Maven ─────────────────────────────────────────────────────────────
-backend/target/
-backend/.mvn/wrapper/maven-wrapper.jar
+target/
+.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
 *.war
