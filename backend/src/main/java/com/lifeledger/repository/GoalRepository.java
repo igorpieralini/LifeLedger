@@ -18,7 +18,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     Optional<Goal> findByIdAndUserId(Long id, Long userId);
 
-    // For dashboard stats
     long countByUserId(Long userId);
     long countByUserIdAndStatus(Long userId, GoalStatus status);
 

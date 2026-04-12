@@ -23,7 +23,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
-    // Financial aggregation for summary/dashboard
     @Query("""
         SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t
         WHERE t.user.id = :userId AND t.type = :type
@@ -31,14 +30,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     """)
     BigDecimal sumByUserIdAndTypeAndDateBetween(Long userId, TransactionType type, LocalDate from, LocalDate to);
 
-    // Overall balance: total income - total expenses
     @Query("""
         SELECT COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE -t.amount END), 0)
         FROM Transaction t WHERE t.user.id = :userId
     """)
     BigDecimal totalBalanceByUserId(Long userId);
 
-    // Category breakdown for pie chart
     @Query("""
         SELECT t.category.name, t.category.color, SUM(t.amount)
         FROM Transaction t

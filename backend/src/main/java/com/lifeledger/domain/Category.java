@@ -30,7 +30,7 @@ public class Category {
     private CategoryType type = CategoryType.VARIABLE;
 
     @Column(length = 7)
-    private String color;   // hex e.g. #FF5733
+    private String color;
 
     @Column(length = 50)
     private String icon;

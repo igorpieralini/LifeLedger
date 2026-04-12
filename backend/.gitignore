@@ -1,8 +1,13 @@
 # ─── Configuração sensível ────────────────────────────────────────────────────
-# NUNCA commite o config.yml com credenciais reais de produção
+# NUNCA commite arquivos com credenciais reais
 config.yml
 config.prod.yml
 config.staging.yml
+.env
+.env.*
+plugg-secrets.yml
+plugg-secrets.properties
+application.yml
 
 # ─── Java / Maven ─────────────────────────────────────────────────────────────
 backend/target/

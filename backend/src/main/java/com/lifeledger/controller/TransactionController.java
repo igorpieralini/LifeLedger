@@ -78,7 +78,6 @@ public class TransactionController {
     public ResponseEntity<FinanceSummaryResponse> summary(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-        // Default to current year/month when not provided
         int y = year  != null ? year  : java.time.LocalDate.now().getYear();
         int m = month != null ? month : java.time.LocalDate.now().getMonthValue();
         return ResponseEntity.ok(transactionService.getSummary(SecurityUtils.currentUserId(), y, m));
