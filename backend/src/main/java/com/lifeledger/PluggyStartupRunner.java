@@ -16,7 +16,6 @@ public class PluggyStartupRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(PluggyStartupRunner.class);
 
-    // ANSI colors
     private static final String RESET  = "\u001B[0m";
     private static final String BOLD   = "\u001B[1m";
     private static final String CYAN   = "\u001B[36m";
@@ -43,12 +42,10 @@ public class PluggyStartupRunner implements ApplicationRunner {
         log.info("");
 
         try {
-            // 1. Conectar
             log.info(DIM + "  ► Conectando ao banco sandbox (connector 0)..." + RESET);
             PluggyItemResponse item = pluggyService.connectAccount(SANDBOX_USER, SANDBOX_PASSWORD);
             log.info(GREEN + "  ✔ Item conectado" + RESET + "  id={}  status={}", item.id(), item.status());
 
-            // 2. Saldo
             log.info("");
             log.info(DIM + "  ► Buscando saldo..." + RESET);
             PluggyAccountResponse account = pluggyService.getBalance();
@@ -56,7 +53,6 @@ public class PluggyStartupRunner implements ApplicationRunner {
             log.info(GREEN + "  ✔ Número: " + RESET + "{}", account.number());
             log.info(GREEN + "  ✔ Saldo : " + RESET + BOLD + YELLOW + "{} {}" + RESET, account.currencyCode(), account.balance());
 
-            // 3. Extrato
             log.info("");
             log.info(DIM + "  ► Buscando extrato..." + RESET);
             PluggyTransactionsResponse extrato = pluggyService.getTransactions();

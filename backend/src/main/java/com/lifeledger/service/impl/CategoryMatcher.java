@@ -40,7 +40,6 @@ public final class CategoryMatcher {
                 "ATACADAO", "ASSAI", "WALMART", "SACOLAO",
                 "HORTIFRUTI", "FEIRA "),
 
-        // ── Transporte ─────────────────────────────────────────────────────────
         new Rule("App de Transporte",  "#6366f1", "local_taxi",
                 "UBER", "99POP", "99PAY", "99 TECNO", "99FOOD",
                 "TAXI", "CABIFY", "INDRIVER", "BOLT "),
@@ -58,7 +57,6 @@ public final class CategoryMatcher {
                 "ONIBUS", "BRT ", "METRÔ", "AUTOPASS", "CARTAO BUS",
                 "PASSE RAPIDO"),
 
-        // ── Moradia ────────────────────────────────────────────────────────────
         new Rule("Aluguel",            "#8b5cf6", "home",
                 "ALUGUEL", "CONDOMINIO", "CONDOMÍNIO", "IPTU"),
 
@@ -75,7 +73,6 @@ public final class CategoryMatcher {
                 "VIVO ", "CLARO ", "TIM ", "OI ", "NEXTEL",
                 "TELECOM"),
 
-        // ── Compras ────────────────────────────────────────────────────────────
         new Rule("Compras Online",     "#ec4899", "shopping_bag",
                 "AMAZON", "SHOPEE", "MERCADO LIVRE", "MERCADOLIVRE",
                 "ALIEXPRESS", "MAGAZINE LUIZA", "MAGALU",
@@ -86,7 +83,6 @@ public final class CategoryMatcher {
                 "ZARA", "RENNER", "RIACHUELO", "HERING",
                 "C&A", "MARISA", "LOJAS "),
 
-        // ── Lazer ──────────────────────────────────────────────────────────────
         new Rule("Streaming",          "#a855f7", "movie",
                 "NETFLIX", "SPOTIFY", "DISNEY", "HBO",
                 "AMAZON PRIME", "DEEZER", "YOUTUBE PREMIUM",
@@ -96,7 +92,6 @@ public final class CategoryMatcher {
                 "CINEMA", "INGRESSO", "TEATRO", "SHOW ",
                 "EVENTO ", "PARQUE ", "BOWLING"),
 
-        // ── Saúde ──────────────────────────────────────────────────────────────
         new Rule("Farmácia",           "#10b981", "local_pharmacy",
                 "FARMACIA", "FARMÁCIA", "DROGARIA",
                 "DROGA", "ULTRAFARMA", "PACHECO"),
@@ -105,14 +100,12 @@ public final class CategoryMatcher {
                 "PLANO DE SAUDE", "HAPVIDA", "UNIMED", "BRADESCO SAUDE",
                 "SULAMERICA", "AMIL ", "NOTREDAME"),
 
-        // ── Educação ───────────────────────────────────────────────────────────
         new Rule("Educação",           "#6366f1", "school",
                 "CURSO ", "FACULDADE", "ESCOLA ", "COLEGIO",
                 "UDEMY", "ALURA", "COURSERA", "ROCKETSEAT",
                 "MENSALIDADE", "FUNDACAO EDUCACIONAL", "FUNDAÇÃO",
                 "UNIV ", "UNIVERSIDADE", "COLEGIO"),
 
-        // ── Financeiro ─────────────────────────────────────────────────────────
         new Rule("Fatura do cartão",   "#fb7185", "credit_card",
                 "FATURA PAGA", "PAGAMENTO FATURA", "PAG FATURA",
                 "FATURA CARTAO", "FATURA CARTÃO"),

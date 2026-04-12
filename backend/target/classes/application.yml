@@ -4,6 +4,10 @@ spring:
       - optional:file:../config.yml
       - optional:file:./config.yml
 
+  output:
+    ansi:
+      enabled: always
+
   application:
     name: lifeledger
 
@@ -42,9 +46,9 @@ spring:
       fail-on-unknown-properties: false
 
 server:
-  port: ${lifeledger.app.port:8080}
+  port: 8080
   servlet:
-    context-path: ${lifeledger.app.context-path:/api}
+    context-path: /api
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/plain
@@ -52,24 +56,24 @@ server:
 
 logging:
   level:
-    com.lifeledger: ${lifeledger.logging.level.app:INFO}
-    org.springframework.security: ${lifeledger.logging.level.security:WARN}
+    com.lifeledger: INFO
+    org.springframework.security: WARN
     org.flywaydb: INFO
   pattern:
     console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} : %msg%n"
 
 lifeledger:
   cors:
-    allowed-origins: ${LIFELEDGER_CORS_ORIGINS:http://localhost:4200}
+    allowed-origins: http://localhost:4200
   jwt:
-    secret: ${LIFELEDGER_JWT_SECRET:bGlmZWxlZGdlci1kZXYtc2VjcmV0LWtleS0yNTYtYml0cw==}
+    secret: bGlmZWxlZGdlci1kZXYtc2VjcmV0LWtleS0yNTYtYml0cw==
     expiration-ms: 86400000
   database:
-    host: ${LIFELEDGER_DB_HOST:localhost}
-    port: ${LIFELEDGER_DB_PORT:5432}
-    name: ${LIFELEDGER_DB_NAME:lifeledger}
-    username: ${LIFELEDGER_DB_USERNAME:postgres}
-    password: ${LIFELEDGER_DB_PASSWORD:postgres}
+    host: localhost
+    port: 5432
+    name: lifeledger
+    username: postgres
+    password: postgres
     auto-create: true
     pool:
       minimum-idle: 2
