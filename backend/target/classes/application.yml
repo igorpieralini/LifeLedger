@@ -1,19 +1,5 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# LifeLedger — Application Configuration
-#
-# Este arquivo define a ESTRUTURA da configuração.
-# Os VALORES vêm do config.yml externo (importado abaixo).
-#
-# Hierarquia de precedência (maior → menor):
-#   1. Variáveis de ambiente
-#   2. config.yml externo
-#   3. Este arquivo (fallbacks)
-# ─────────────────────────────────────────────────────────────────────────────
-
 spring:
   config:
-    # Importa config.yml da raiz do projeto (../config.yml relativo ao backend/)
-    # "optional:" previne erro se o arquivo não existir — usa os defaults abaixo
     import:
       - optional:file:../config.yml
       - optional:file:./config.yml
@@ -21,17 +7,12 @@ spring:
   application:
     name: lifeledger
 
-  # ── Multipart (CSV / PDF upload) ───────────────────────────────────────────
   servlet:
     multipart:
       enabled: true
       max-file-size: 20MB
       max-request-size: 25MB
 
-  # ── JPA ────────────────────────────────────────────────────────────────────
-  # ddl-auto: none — Flyway owns the schema. Hibernate must not validate because
-  # after the V4 migration, enum columns are VARCHAR and Hibernate's schema
-  # metadata check would report a mismatch with the old column definitions.
   jpa:
     hibernate:
       ddl-auto: none
@@ -46,7 +27,6 @@ spring:
         order_inserts: true
         order_updates: true
 
-  # ── Flyway ─────────────────────────────────────────────────────────────────
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -54,7 +34,6 @@ spring:
     validate-on-migrate: false
     out-of-order: false
 
-  # ── Jackson ────────────────────────────────────────────────────────────────
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -62,7 +41,6 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
-# ─── Servidor ─────────────────────────────────────────────────────────────────
 server:
   port: ${lifeledger.app.port:8080}
   servlet:
@@ -72,7 +50,6 @@ server:
     mime-types: application/json,application/xml,text/html,text/plain
     min-response-size: 1024
 
-# ─── Logging ──────────────────────────────────────────────────────────────────
 logging:
   level:
     com.lifeledger: ${lifeledger.logging.level.app:INFO}
@@ -81,7 +58,6 @@ logging:
   pattern:
     console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} : %msg%n"
 
-# ─── LifeLedger custom properties ─────────────────────────────────────────────
 lifeledger:
   cors:
     allowed-origins: ${LIFELEDGER_CORS_ORIGINS:http://localhost:4200}
@@ -98,3 +74,10 @@ lifeledger:
     pool:
       minimum-idle: 2
       maximum-pool-size: 10
+
+pluggy:
+  base-url: https://api.pluggy.ai
+  client-id: 6929a4e4-d417-49cb-b563-5be728fb3cfd
+  client-secret: 89ef3415-bb2c-4024-9021-3076047c7971
+  api-key: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYjZhMjVhMWY1MTI3NjhlZWUyYzQwZDUwNTZkYWM0NDA6MmM0ZDA1NjRkOWMzMmU1YzU5ZTY5NDExNDc2NjZjMzJhYzhhZDMzMjY3NGU1YmE3NmQ3M2VjZjFmODcyZGQxZjJkNTdiMjMxNWRkOGMzMTEwOWZlMzE1N2U4ZTEwODdiMWU5NWU1MDBjYzYzOTFkYmIzMDY5YTMyNTkxZGI2N2IxNDE4NDljMjJjMTEwNmI5MDQ2YTU3Y2Q0MGQ2MGQ5NSIsImlhdCI6MTc3NjAwOTk3NCwiZXhwIjoxNzc2MDE3MTc0fQ.IFpG2STdRY-J3HeOJoYeP3Rg-5DXB-vLhvs9DOYpr5VmAbrt5fqTfYAlTlYPPrxmZ4zLUb9D32cpXl9FLMuJfG5Ln5XfW2ArYZYlTMRZeuaue8wlzcImiwZ-YYWVFRby907Dt_l7fFsqlL1yjC7WlLYOA7aG8p4UhI69h7BYrStAGcTyAiaj02v8nPYAbUJ1zDU5THTZmI4M-5YiwFgdIN1G56X_CrwwoSwb6ZZZo_cxhbN1VB1zVhGBPlt910kCt8h5QQgiHvQ67E5QsvnwSPAK5sZfQLu5iCDilmceWne2VTMRDE2sK9k7d48GIPscjxcFz3m5Y_MMUjMiacWF_Q
+  sandbox-connector-id: 0
