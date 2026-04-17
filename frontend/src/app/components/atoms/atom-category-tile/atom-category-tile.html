@@ -1,0 +1,27 @@
+<div class="category-tile" [style.--cat-color]="category().color || 'var(--color-muted)'">
+  <div class="category-tile__accent"></div>
+  <div class="category-tile__top">
+    <div class="category-tile__icon-wrap">
+      <atom-icon [name]="category().icon || 'category'" size="md" [color]="category().color || 'var(--color-muted)'" />
+    </div>
+    <atom-button
+      variant="ghost"
+      size="sm"
+      [disabled]="deleting()"
+      (clicked)="deleted.emit(category())"
+    >
+      @if (deleting()) {
+        <atom-spinner size="sm" />
+      } @else {
+        <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
+      }
+    </atom-button>
+  </div>
+  <div class="category-tile__body">
+    <strong class="category-tile__name">{{ category().name }}</strong>
+    <span class="category-tile__icon-name">{{ category().icon || 'category' }}</span>
+  </div>
+  <div class="category-tile__footer">
+    <atom-badge variant="outline" size="sm" [value]="category().type === 'FIXED' ? 'Fixa' : 'Variável'" [color]="category().color || null" />
+  </div>
+</div>

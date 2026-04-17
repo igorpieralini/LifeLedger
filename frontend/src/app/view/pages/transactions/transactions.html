@@ -66,17 +66,18 @@
     </div>
 
     @if (loading()) {
-      <div class="tx-feedback">
-        <atom-spinner size="lg" />
-      </div>
+      <atom-feedback-state mode="loading" class="tx-feedback" />
     } @else if (transactions().length === 0) {
-      <div class="tx-feedback">
-        <atom-icon name="receipt_long" size="xl" color="var(--color-muted)" />
-        <atom-text color="muted">Nenhuma transação encontrada</atom-text>
+      <atom-feedback-state
+        class="tx-feedback"
+        icon="receipt_long"
+        title="Nenhuma transacao encontrada"
+        description="Ajuste os filtros ou registre novas transacoes para visualizar resultados."
+      >
         @if (hasActiveFilters()) {
           <atom-button variant="ghost" size="sm" (clicked)="clearFilters()">Limpar filtros</atom-button>
         }
-      </div>
+      </atom-feedback-state>
     } @else {
       <div class="tx-list">
         @for (tx of transactions(); track tx.id) {

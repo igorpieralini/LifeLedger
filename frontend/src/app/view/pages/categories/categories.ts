@@ -1,5 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AtomCard } from '../../../components/atoms/atom-card/atom-card';
 import { AtomIcon } from '../../../components/atoms/atom-icon/atom-icon';
 import { AtomText } from '../../../components/atoms/atom-text/atom-text';
@@ -9,6 +8,9 @@ import { AtomButton } from '../../../components/atoms/atom-button/atom-button';
 import { AtomInput } from '../../../components/atoms/atom-input/atom-input';
 import { AtomSelect, SelectOption } from '../../../components/atoms/atom-select/atom-select';
 import { AtomSpinner } from '../../../components/atoms/atom-spinner/atom-spinner';
+import { AtomFeedbackState } from '../../../components/atoms/atom-feedback-state/atom-feedback-state';
+import { AtomCategoryTile } from '../../../components/atoms/atom-category-tile/atom-category-tile';
+import { SharedPopup } from '../../../components/shared/shared-popup/shared-popup';
 import { CategoryApiService, CategoryResponse, CategoryRequest } from '../../../services/category-api.service';
 
 const PRESET_COLORS = [
@@ -19,15 +21,22 @@ const PRESET_COLORS = [
   '#6b7280', '#94a3b8',
 ];
 
+const PRESET_ICONS = [
+  'category', 'receipt_long', 'shopping_cart', 'restaurant', 'directions_car',
+  'local_gas_station', 'movie', 'school', 'favorite', 'home',
+  'exercise', 'savings', 'payments', 'attach_money', 'commute',
+];
+
 @Component({
   selector: 'page-categories',
   imports: [
-    FormsModule,
     AtomCard, AtomIcon, AtomText, AtomHeading, AtomBadge,
     AtomButton, AtomInput, AtomSelect, AtomSpinner,
+    AtomFeedbackState, AtomCategoryTile, SharedPopup,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesPage implements OnInit {
   private readonly catApi = inject(CategoryApiService);
@@ -37,6 +46,7 @@ export class CategoriesPage implements OnInit {
   deleting = signal<number | null>(null);
   creating = signal(false);
   showForm = signal(false);
+  searchTerm = signal('');
 
   // Form fields
   newName = signal('');
@@ -45,14 +55,34 @@ export class CategoriesPage implements OnInit {
   newIcon = signal('category');
 
   presetColors = PRESET_COLORS;
+  presetIcons = PRESET_ICONS;
 
   typeOptions: SelectOption[] = [
     { value: 'VARIABLE', label: 'Variável' },
     { value: 'FIXED', label: 'Fixa' },
   ];
 
-  fixedCategories = computed(() => this.categories().filter(c => c.type === 'FIXED'));
-  variableCategories = computed(() => this.categories().filter(c => c.type === 'VARIABLE'));
+  sortedCategories = computed(() => [...this.categories()].sort((left, right) => left.name.localeCompare(right.name, 'pt-BR')));
+  filteredCategories = computed(() => {
+    const term = this.searchTerm().trim().toLocaleLowerCase();
+    if (!term) return this.sortedCategories();
+
+    return this.sortedCategories().filter(category => {
+      const typeLabel = category.type === 'FIXED' ? 'fixa' : 'variavel';
+      return category.name.toLocaleLowerCase().includes(term)
+        || (category.icon ?? '').toLocaleLowerCase().includes(term)
+        || typeLabel.includes(term);
+    });
+  });
+  fixedCategories = computed(() => this.filteredCategories().filter(c => c.type === 'FIXED'));
+  variableCategories = computed(() => this.filteredCategories().filter(c => c.type === 'VARIABLE'));
+  totalCategories = computed(() => this.categories().length);
+  totalFixed = computed(() => this.categories().filter(c => c.type === 'FIXED').length);
+  totalVariable = computed(() => this.categories().filter(c => c.type === 'VARIABLE').length);
+  accentPaletteSize = computed(() => new Set(this.categories().map(category => category.color ?? 'none')).size);
+  visibleCount = computed(() => this.filteredCategories().length);
+  hasActiveSearch = computed(() => this.searchTerm().trim().length > 0);
+  previewTypeLabel = computed(() => this.newType() === 'FIXED' ? 'Fixa' : 'Variável');
 
   canCreate = computed(() => this.newName().trim().length > 0);
 
@@ -84,6 +114,19 @@ export class CategoriesPage implements OnInit {
     this.newColor.set(color);
   }
 
+  selectIcon(icon: string) {
+    this.newIcon.set(icon);
+  }
+
+  clearSearch() {
+    this.searchTerm.set('');
+  }
+
+  shareOfTotal(count: number): number {
+    const total = this.totalCategories();
+    return total === 0 ? 0 : Math.round((count / total) * 100);
+  }
+
   createCategory() {
     if (!this.canCreate() || this.creating()) return;
     this.creating.set(true);
@@ -104,7 +147,7 @@ export class CategoriesPage implements OnInit {
     });
   }
 
-  deleteCategory(cat: CategoryResponse) {
+  deleteCategory(cat: { id: number }) {
     if (this.deleting() !== null) return;
     this.deleting.set(cat.id);
     this.catApi.delete(cat.id).subscribe({

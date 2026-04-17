@@ -2,14 +2,14 @@ import { Component } from '@angular/core';
 import { SharedPageStub } from '../../../components/shared/shared-page-stub/shared-page-stub';
 
 @Component({
-  selector: 'page-goals',
+  selector: 'page-studies',
   imports: [SharedPageStub],
   template: `
     <shared-page-stub
-      icon="work"
-      title="Carreira"
-      description="Defina e acompanhe seus objetivos profissionais e de carreira."
+      icon="school"
+      title="Estudos"
+      description="Organize seus planos de estudo, cursos e aprendizados."
     />
   `,
 })
-export class GoalsPage {}
+export class StudiesPage {}

@@ -2,24 +2,76 @@
   <span class="date-range__label">{{ label() }}</span>
 }
 <div class="date-range">
+  <!-- FROM -->
   <div class="date-range__field">
     <label class="date-range__sublabel">{{ labelFrom() }}</label>
-    <input
-      type="date"
-      class="date-range__input"
+    <button
+      type="button"
+      class="date-range__trigger"
+      [class.date-range__trigger--active]="activeField() === 'from'"
+      [class.date-range__trigger--has-value]="dateFrom()"
       [disabled]="disabled()"
-      [(ngModel)]="dateFrom"
-      (ngModelChange)="onChanged()"
-    />
+      (click)="openCalendar('from')"
+    >
+      <span class="date-range__display">{{ formatDisplay(dateFrom()) || 'dd/mm/aaaa' }}</span>
+      <span class="date-range__icon material-symbols-outlined">calendar_today</span>
+    </button>
   </div>
+
+  <!-- TO -->
   <div class="date-range__field">
     <label class="date-range__sublabel">{{ labelTo() }}</label>
-    <input
-      type="date"
-      class="date-range__input"
+    <button
+      type="button"
+      class="date-range__trigger"
+      [class.date-range__trigger--active]="activeField() === 'to'"
+      [class.date-range__trigger--has-value]="dateTo()"
       [disabled]="disabled()"
-      [(ngModel)]="dateTo"
-      (ngModelChange)="onChanged()"
-    />
+      (click)="openCalendar('to')"
+    >
+      <span class="date-range__display">{{ formatDisplay(dateTo()) || 'dd/mm/aaaa' }}</span>
+      <span class="date-range__icon material-symbols-outlined">calendar_today</span>
+    </button>
   </div>
+
+  <!-- Calendar dropdown -->
+  @if (activeField()) {
+    <div class="calendar" [class.calendar--right]="activeField() === 'to'">
+      <div class="calendar__header">
+        <span class="calendar__month-label">{{ monthLabel() }}</span>
+        <div class="calendar__nav">
+          <button type="button" class="calendar__nav-btn" (click)="prevMonth()">
+            <span class="material-symbols-outlined">arrow_upward</span>
+          </button>
+          <button type="button" class="calendar__nav-btn" (click)="nextMonth()">
+            <span class="material-symbols-outlined">arrow_downward</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="calendar__weekdays">
+        @for (wd of weekdays; track $index) {
+          <span class="calendar__wd">{{ wd }}</span>
+        }
+      </div>
+
+      <div class="calendar__grid">
+        @for (cell of calendarDays(); track $index) {
+          <button
+            type="button"
+            class="calendar__day"
+            [class.calendar__day--outside]="cell.outside"
+            [class.calendar__day--selected]="isSelected(cell)"
+            [class.calendar__day--today]="isToday(cell)"
+            (click)="selectDay(cell)"
+          >{{ cell.day }}</button>
+        }
+      </div>
+
+      <div class="calendar__footer">
+        <button type="button" class="calendar__action" (click)="clearCalendar()">Limpar</button>
+        <button type="button" class="calendar__action calendar__action--primary" (click)="selectToday()">Hoje</button>
+      </div>
+    </div>
+  }
 </div>

@@ -36,9 +36,11 @@ export class SharedMaster {
       ],
     },
     {
-      title: 'Planejamento',
+      title: 'Metas',
       items: [
-        { icon: 'flag', label: 'Metas', route: '/goals' },
+        { icon: 'work', label: 'Carreira', route: '/goals' },
+        { icon: 'school', label: 'Estudos', route: '/studies' },
+        { icon: 'trending_up', label: 'Crescimento', route: '/growth' },
       ],
     },
   ];

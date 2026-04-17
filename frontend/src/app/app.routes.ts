@@ -30,6 +30,14 @@ export const routes: Routes = [
         path: 'goals',
         loadComponent: () => import('./view/pages/goals/goals').then(m => m.GoalsPage),
       },
+      {
+        path: 'studies',
+        loadComponent: () => import('./view/pages/studies/studies').then(m => m.StudiesPage),
+      },
+      {
+        path: 'growth',
+        loadComponent: () => import('./view/pages/growth/growth').then(m => m.GrowthPage),
+      },
     ],
   },
 ];

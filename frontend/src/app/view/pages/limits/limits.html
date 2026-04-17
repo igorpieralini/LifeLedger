@@ -1,53 +1,75 @@
 <div class="limits">
-  <!-- Header -->
-  <div class="limits__header">
-    <div>
-      <atom-heading [level]="4">Limites por Categoria</atom-heading>
-      <atom-text variant="caption" color="muted">
-        {{ configuredCount() }} de {{ items().length }} categorias com limite configurado
-      </atom-text>
-    </div>
-    <atom-card padding="sm" class="limits__total">
-      <div class="total-card">
-        <atom-text variant="caption" color="muted">Total em limites</atom-text>
-        <atom-text variant="bold">{{ totalLimits() | currency:'BRL':'symbol':'1.2-2' }}</atom-text>
+  <!-- Hero -->
+  <section class="limits__hero">
+    <div class="hero">
+      <div class="hero__copy">
+        <div class="hero__eyebrow">
+          <span class="hero__eyebrow-dot"></span>
+          Controle de gastos
+        </div>
+        <atom-heading [level]="3">Limites por Categoria</atom-heading>
+        <atom-text color="muted">
+          Defina tetos de despesa por categoria para manter seu orçamento sob controle.
+        </atom-text>
       </div>
-    </atom-card>
-  </div>
+    </div>
+
+    <div class="hero__stats">
+      <div class="metric">
+        <span class="metric__label">Categorias</span>
+        <strong class="metric__value">{{ items().length }}</strong>
+        <span class="metric__hint">cadastradas</span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Com limite</span>
+        <strong class="metric__value">{{ configuredCount() }}</strong>
+        <span class="metric__hint">{{ configuredPercent() }}% do total</span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Sem limite</span>
+        <strong class="metric__value">{{ unconfiguredCount() }}</strong>
+        <span class="metric__hint">a definir</span>
+      </div>
+      <div class="metric metric--accent">
+        <span class="metric__label">Total em limites</span>
+        <strong class="metric__value">{{ totalLimits() | currency:'BRL':'symbol':'1.0-0' }}</strong>
+        <span class="metric__hint">orçamento alocado</span>
+      </div>
+    </div>
+  </section>
 
   @if (loading()) {
-    <div class="limits__loading">
-      <atom-spinner size="lg" />
-    </div>
+    <atom-feedback-state mode="loading" class="limits__loading" />
   } @else if (items().length === 0) {
-    <div class="limits__empty">
-      <atom-icon name="tune" size="xl" color="var(--color-muted)" />
-      <atom-text color="muted">Nenhuma categoria encontrada</atom-text>
-    </div>
+    <atom-feedback-state
+      class="limits__empty"
+      icon="tune"
+      title="Nenhuma categoria encontrada"
+      description="Crie categorias para configurar limites por tipo de gasto."
+    />
   } @else {
-    <atom-card padding="none" class="limits__card">
-      <div class="limit-list">
-        @for (item of items(); track item.category.id) {
-          <div class="limit-row" [class.limit-row--editing]="item.editing">
-            <!-- Category info -->
-            <div class="limit-row__info">
-              <atom-icon
-                [name]="item.category.icon || 'category'"
-                size="md"
-                [color]="item.category.color || 'var(--color-muted)'"
-              />
-              <div class="limit-row__name">
+    <div class="limits__grid">
+      @for (item of items(); track item.category.id) {
+        <atom-card padding="none" class="limit-card" [class.limit-card--has-limit]="!!item.limit" [class.limit-card--editing]="item.editing">
+          <div class="limit-card__accent" [style.background]="item.category.color || 'var(--color-muted)'"></div>
+
+          <div class="limit-card__body">
+            <div class="limit-card__top">
+              <div class="limit-card__icon" [style.--lc-color]="item.category.color || 'var(--color-muted)'">
+                <atom-icon [name]="item.category.icon || 'category'" size="md" [color]="item.category.color || 'var(--color-muted)'" />
+              </div>
+              <div class="limit-card__info">
                 <atom-text>{{ item.category.name }}</atom-text>
-                <atom-text variant="caption" color="muted">
-                  {{ item.category.type === 'FIXED' ? 'Fixa' : 'Variável' }}
-                </atom-text>
+                <atom-badge variant="outline" size="sm"
+                  [value]="item.category.type === 'FIXED' ? 'Fixa' : 'Variável'"
+                  [color]="item.category.color"
+                />
               </div>
             </div>
 
-            <!-- Limit value display / edit -->
-            <div class="limit-row__actions">
+            <div class="limit-card__bottom">
               @if (item.editing) {
-                <div class="limit-row__edit">
+                <div class="limit-card__edit">
                   <div class="limit-input-wrapper">
                     <span class="limit-input-prefix">R$</span>
                     <input
@@ -62,23 +84,23 @@
                       (keyup.escape)="cancelEdit()"
                     />
                   </div>
-                  <atom-button size="sm" [disabled]="item.saving" (clicked)="saveLimit(item)">
-                    @if (item.saving) {
-                      <atom-spinner size="sm" />
-                    } @else {
-                      <atom-icon name="check" size="sm" />
-                    }
-                  </atom-button>
-                  <atom-button variant="ghost" size="sm" (clicked)="cancelEdit()">
-                    <atom-icon name="close" size="sm" />
-                  </atom-button>
+                  <div class="limit-card__edit-actions">
+                    <atom-button size="sm" [disabled]="item.saving" (clicked)="saveLimit(item)">
+                      @if (item.saving) {
+                        <atom-spinner size="sm" />
+                      } @else {
+                        <atom-icon name="check" size="sm" />
+                      }
+                    </atom-button>
+                    <atom-button variant="ghost" size="sm" (clicked)="cancelEdit()">
+                      <atom-icon name="close" size="sm" />
+                    </atom-button>
+                  </div>
                 </div>
-              } @else {
-                <div class="limit-row__display">
-                  @if (item.limit) {
-                    <atom-text variant="bold">
-                      {{ item.limit.limitAmount | currency:'BRL':'symbol':'1.2-2' }}
-                    </atom-text>
+              } @else if (item.limit) {
+                <div class="limit-card__value">
+                  <span class="limit-card__amount">{{ item.limit.limitAmount | currency:'BRL':'symbol':'1.2-2' }}</span>
+                  <div class="limit-card__value-actions">
                     <atom-button variant="ghost" size="sm" (clicked)="startEdit(item)">
                       <atom-icon name="edit" size="sm" color="var(--color-muted)" />
                     </atom-button>
@@ -89,19 +111,18 @@
                         <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
                       }
                     </atom-button>
-                  } @else {
-                    <atom-text variant="caption" color="muted">Sem limite</atom-text>
-                    <atom-button variant="ghost" size="sm" (clicked)="startEdit(item)">
-                      <atom-icon name="add" size="sm" color="var(--color-primary)" />
-                      <atom-text variant="caption" color="default">Definir</atom-text>
-                    </atom-button>
-                  }
+                  </div>
                 </div>
+              } @else {
+                <button class="limit-card__set-btn" (click)="startEdit(item)">
+                  <atom-icon name="add" size="sm" color="var(--color-primary)" />
+                  <span>Definir limite</span>
+                </button>
               }
             </div>
           </div>
-        }
-      </div>
-    </atom-card>
+        </atom-card>
+      }
+    </div>
   }
 </div>

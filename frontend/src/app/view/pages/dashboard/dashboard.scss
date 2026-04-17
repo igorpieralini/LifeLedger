@@ -61,28 +61,6 @@
   }
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  &__value {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--color-text);
-    line-height: 1;
-
-    &--income { color: var(--color-success); }
-    &--expense { color: var(--color-danger); }
-  }
-}
-
 .chart-card {
   display: flex;
   flex-direction: column;

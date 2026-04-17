@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { AtomCard } from '../../../components/atoms/atom-card/atom-card';
-import { AtomIcon } from '../../../components/atoms/atom-icon/atom-icon';
 import { AtomText } from '../../../components/atoms/atom-text/atom-text';
 import { AtomHeading } from '../../../components/atoms/atom-heading/atom-heading';
-import { AtomSpinner } from '../../../components/atoms/atom-spinner/atom-spinner';
+import { AtomStatCard } from '../../../components/atoms/atom-stat-card/atom-stat-card';
+import { AtomFeedbackState } from '../../../components/atoms/atom-feedback-state/atom-feedback-state';
 import { TransactionApiService } from '../../../services/transaction-api.service';
 import { TransactionResponse } from '../../../services/dashboard-api.service';
 
@@ -12,7 +12,7 @@ import { TransactionResponse } from '../../../services/dashboard-api.service';
   selector: 'page-dashboard',
   imports: [
     CurrencyPipe, DecimalPipe,
-    AtomCard, AtomIcon, AtomText, AtomHeading, AtomSpinner,
+    AtomCard, AtomText, AtomHeading, AtomStatCard, AtomFeedbackState,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

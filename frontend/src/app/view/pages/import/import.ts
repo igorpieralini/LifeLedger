@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
-import { AtomHeading } from '../../../components/atoms/atom-heading/atom-heading';
-import { AtomIcon } from '../../../components/atoms/atom-icon/atom-icon';
+import { SharedPageStub } from '../../../components/shared/shared-page-stub/shared-page-stub';
 
 @Component({
   selector: 'page-import',
-  imports: [AtomHeading, AtomIcon],
+  imports: [SharedPageStub],
   template: `
-    <div class="page-stub">
-      <atom-icon name="upload_file" size="xl" color="var(--color-muted)" />
-      <atom-heading [level]="3">Importar</atom-heading>
-    </div>
+    <shared-page-stub
+      icon="upload_file"
+      title="Importar"
+      description="Envie extratos CSV e PDF para preencher suas transacoes automaticamente."
+    />
   `,
-  styles: `:host { display:flex; flex:1; } .page-stub { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.75rem; flex:1; }`,
 })
 export class ImportPage {}

@@ -1,0 +1,14 @@
+<atom-card>
+  <div class="stat">
+    <div class="stat__header">
+      <atom-icon [name]="icon()" size="md" [color]="iconColor()" />
+      <atom-text variant="caption" color="muted">{{ label() }}</atom-text>
+    </div>
+    <span class="stat__value"
+      [class.stat__value--income]="variant() === 'income'"
+      [class.stat__value--expense]="variant() === 'expense'"
+    >
+      <ng-content />
+    </span>
+  </div>
+</atom-card>

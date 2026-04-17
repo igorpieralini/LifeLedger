@@ -21,3 +21,6 @@ export { AtomDateRange } from './atom-date-range/atom-date-range';
 export { AtomPagination } from './atom-pagination/atom-pagination';
 export { AtomAlert } from './atom-alert/atom-alert';
 export { AlertService, type AlertItem } from './atom-alert/alert.service';
+export { AtomFeedbackState } from './atom-feedback-state/atom-feedback-state';
+export { AtomStatCard } from './atom-stat-card/atom-stat-card';
+export { AtomCategoryTile, type CategoryTileData } from './atom-category-tile/atom-category-tile';

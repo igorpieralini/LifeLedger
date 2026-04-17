@@ -8,6 +8,8 @@ import { AtomText } from '../../../components/atoms/atom-text/atom-text';
 import { AtomHeading } from '../../../components/atoms/atom-heading/atom-heading';
 import { AtomButton } from '../../../components/atoms/atom-button/atom-button';
 import { AtomSpinner } from '../../../components/atoms/atom-spinner/atom-spinner';
+import { AtomBadge } from '../../../components/atoms/atom-badge/atom-badge';
+import { AtomFeedbackState } from '../../../components/atoms/atom-feedback-state/atom-feedback-state';
 import { CategoryApiService, CategoryResponse } from '../../../services/category-api.service';
 import { CategoryLimitApiService, CategoryLimitResponse } from '../../../services/category-limit-api.service';
 
@@ -24,6 +26,7 @@ interface CategoryWithLimit {
   imports: [
     CurrencyPipe, FormsModule,
     AtomCard, AtomIcon, AtomText, AtomHeading, AtomButton, AtomSpinner,
+    AtomBadge, AtomFeedbackState,
   ],
   templateUrl: './limits.html',
   styleUrl: './limits.scss',
@@ -42,6 +45,15 @@ export class LimitsPage implements OnInit {
   configuredCount = computed(() =>
     this.items().filter(it => it.limit !== null).length
   );
+
+  unconfiguredCount = computed(() =>
+    this.items().length - this.configuredCount()
+  );
+
+  configuredPercent = computed(() => {
+    const total = this.items().length;
+    return total === 0 ? 0 : Math.round((this.configuredCount() / total) * 100);
+  });
 
   ngOnInit() {
     this.loadData();

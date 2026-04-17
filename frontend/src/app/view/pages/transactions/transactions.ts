@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AtomIcon } from '../../../components/atoms/atom-icon/atom-icon';
 import { AtomText } from '../../../components/atoms/atom-text/atom-text';
 import { AtomBadge } from '../../../components/atoms/atom-badge/atom-badge';
-import { AtomSpinner } from '../../../components/atoms/atom-spinner/atom-spinner';
 import { AtomButton } from '../../../components/atoms/atom-button/atom-button';
 import { AtomSelect, SelectOption } from '../../../components/atoms/atom-select/atom-select';
 import { AtomInput } from '../../../components/atoms/atom-input/atom-input';
 import { AtomDateRange } from '../../../components/atoms/atom-date-range/atom-date-range';
 import { AtomPagination } from '../../../components/atoms/atom-pagination/atom-pagination';
+import { AtomFeedbackState } from '../../../components/atoms/atom-feedback-state/atom-feedback-state';
 import { TransactionApiService, TransactionFilter, Page } from '../../../services/transaction-api.service';
 import { TransactionResponse } from '../../../services/dashboard-api.service';
 import { CategoryApiService, CategoryResponse } from '../../../services/category-api.service';
@@ -19,7 +19,8 @@ import { CategoryApiService, CategoryResponse } from '../../../services/category
   imports: [
     CurrencyPipe, DatePipe, FormsModule,
     AtomIcon, AtomText, AtomBadge,
-    AtomSpinner, AtomButton, AtomSelect, AtomInput, AtomDateRange,
+    AtomButton, AtomSelect, AtomInput, AtomDateRange,
+    AtomFeedbackState,
     AtomPagination,
   ],
   templateUrl: './transactions.html',

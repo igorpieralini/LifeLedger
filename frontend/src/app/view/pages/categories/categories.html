@@ -1,152 +1,262 @@
 <div class="categories">
-  <!-- Header -->
-  <div class="categories__header">
-    <atom-heading [level]="4">Categorias</atom-heading>
-    <atom-button size="sm" (clicked)="toggleForm()">
-      <atom-icon [name]="showForm() ? 'close' : 'add'" size="sm" />
-      {{ showForm() ? 'Cancelar' : 'Nova categoria' }}
-    </atom-button>
-  </div>
-
-  <!-- Create form -->
-  @if (showForm()) {
-    <atom-card padding="sm">
-      <div class="form">
-        <div class="form__fields">
-          <atom-input
-            label="Nome"
-            name="catName"
-            placeholder="Ex: Alimentação"
-            [(value)]="newName"
-          />
-          <atom-select
-            label="Tipo"
-            name="catType"
-            [options]="typeOptions"
-            [(value)]="newType"
-          />
-          <atom-input
-            label="Ícone (Material)"
-            name="catIcon"
-            placeholder="Ex: restaurant"
-            [(value)]="newIcon"
-          />
+  <section class="categories__hero">
+    <div class="hero">
+      <div class="hero__copy">
+        <div class="hero__eyebrow">
+          <span class="hero__eyebrow-dot"></span>
+          Biblioteca financeira
         </div>
+        <atom-heading [level]="3">Categorias</atom-heading>
+        <atom-text color="muted">
+          Organize receitas e despesas com uma estrutura visual mais clara, sem desperdiçar largura da tela.
+        </atom-text>
+      </div>
 
-        <div class="form__colors">
-          <atom-text variant="caption" color="muted">Cor</atom-text>
-          <div class="color-grid">
-            @for (c of presetColors; track c) {
-              <button
-                class="color-swatch"
-                [class.color-swatch--active]="c === newColor()"
-                [style.background]="c"
-                (click)="selectColor(c)"
-              ></button>
-            }
-          </div>
-        </div>
-
-        <div class="form__preview">
-          <atom-text variant="caption" color="muted">Preview</atom-text>
-          <div class="form__preview-row">
-            <atom-icon [name]="newIcon() || 'category'" size="md" [color]="newColor()" />
-            <atom-badge variant="outline" [value]="newName() || 'Nome'" [color]="newColor()" size="md" />
-            <atom-badge [value]="newType() === 'FIXED' ? 'Fixa' : 'Variável'" variant="primary" size="sm" />
-          </div>
-        </div>
-
-        <atom-button [disabled]="!canCreate() || creating()" (clicked)="createCategory()">
-          @if (creating()) {
-            <atom-spinner size="sm" />
-          } @else {
-            <atom-icon name="add" size="sm" />
-            Criar categoria
-          }
+      <div class="hero__actions">
+        @if (hasActiveSearch()) {
+          <atom-button variant="secondary" size="sm" (clicked)="clearSearch()">
+            <atom-icon name="filter_alt_off" size="sm" />
+            Limpar busca
+          </atom-button>
+        }
+        <atom-button size="sm" (clicked)="toggleForm()">
+          <atom-icon name="add" size="sm" />
+          Nova categoria
         </atom-button>
       </div>
-    </atom-card>
-  }
-
-  <!-- Content -->
-  @if (loading()) {
-    <div class="categories__loading">
-      <atom-spinner size="lg" />
     </div>
-  } @else {
-    <!-- Fixed -->
-    @if (fixedCategories().length > 0) {
-      <atom-card padding="sm">
-        <div class="section">
-          <div class="section__header">
-            <atom-text variant="bold">Fixas</atom-text>
-            <atom-text variant="caption" color="muted">{{ fixedCategories().length }}</atom-text>
-          </div>
-          <div class="cat-list">
-            @for (cat of fixedCategories(); track cat.id) {
-              <div class="cat-item">
-                <div class="cat-item__info">
-                  <atom-icon [name]="cat.icon || 'category'" size="md" [color]="cat.color || 'var(--color-muted)'" />
-                  <atom-text>{{ cat.name }}</atom-text>
-                </div>
-                <atom-button
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="deleting() === cat.id"
-                  (clicked)="deleteCategory(cat)"
-                >
-                  @if (deleting() === cat.id) {
-                    <atom-spinner size="sm" />
-                  } @else {
-                    <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
-                  }
-                </atom-button>
-              </div>
-            }
-          </div>
-        </div>
-      </atom-card>
-    }
 
-    <!-- Variable -->
-    @if (variableCategories().length > 0) {
-      <atom-card padding="sm">
-        <div class="section">
-          <div class="section__header">
-            <atom-text variant="bold">Variáveis</atom-text>
-            <atom-text variant="caption" color="muted">{{ variableCategories().length }}</atom-text>
-          </div>
-          <div class="cat-list">
-            @for (cat of variableCategories(); track cat.id) {
-              <div class="cat-item">
-                <div class="cat-item__info">
-                  <atom-icon [name]="cat.icon || 'category'" size="md" [color]="cat.color || 'var(--color-muted)'" />
-                  <atom-text>{{ cat.name }}</atom-text>
-                </div>
-                <atom-button
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="deleting() === cat.id"
-                  (clicked)="deleteCategory(cat)"
-                >
-                  @if (deleting() === cat.id) {
-                    <atom-spinner size="sm" />
-                  } @else {
-                    <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
-                  }
-                </atom-button>
-              </div>
-            }
-          </div>
-        </div>
-      </atom-card>
-    }
-
-    @if (categories().length === 0) {
-      <div class="categories__empty">
-        <atom-icon name="category" size="xl" color="var(--color-muted)" />
-        <atom-text color="muted">Nenhuma categoria encontrada</atom-text>
+    <div class="hero__stats">
+      <div class="metric">
+        <span class="metric__label">Total</span>
+        <strong class="metric__value">{{ totalCategories() }}</strong>
+        <span class="metric__hint">{{ visibleCount() }} em foco</span>
       </div>
-    }
-  }
+      <div class="metric">
+        <span class="metric__label">Fixas</span>
+        <strong class="metric__value">{{ totalFixed() }}</strong>
+        <span class="metric__hint">{{ shareOfTotal(totalFixed()) }}% da base</span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Variáveis</span>
+        <strong class="metric__value">{{ totalVariable() }}</strong>
+        <span class="metric__hint">{{ shareOfTotal(totalVariable()) }}% da base</span>
+      </div>
+      <div class="metric metric--accent">
+        <span class="metric__label">Paleta ativa</span>
+        <strong class="metric__value">{{ accentPaletteSize() }}</strong>
+        <span class="metric__hint">cores em uso</span>
+      </div>
+    </div>
+  </section>
+
+  <shared-popup [open]="showForm()" title="Nova categoria" size="md" (closed)="toggleForm()">
+    <div class="composer">
+      <div class="composer__header">
+        <div>
+          <atom-text variant="caption" color="muted">Crie grupos consistentes para manter o dashboard mais legível.</atom-text>
+        </div>
+        <atom-badge [value]="previewTypeLabel()" size="sm" variant="outline" [color]="newColor()" />
+      </div>
+
+      <div class="composer__fields">
+        <atom-input
+          label="Nome"
+          name="catName"
+          placeholder="Ex: Alimentação"
+          [(value)]="newName"
+        />
+        <atom-select
+          label="Tipo"
+          name="catType"
+          [options]="typeOptions"
+          [(value)]="newType"
+        />
+        <atom-input
+          label="Ícone"
+          name="catIcon"
+          placeholder="Ex: restaurant"
+          [(value)]="newIcon"
+        />
+      </div>
+
+      <div class="composer__section">
+        <div class="composer__section-head">
+          <atom-text variant="caption" color="muted">Cores</atom-text>
+          <span class="composer__section-value">{{ newColor() }}</span>
+        </div>
+        <div class="color-grid">
+          @for (c of presetColors; track c) {
+            <button
+              type="button"
+              class="color-swatch"
+              [class.color-swatch--active]="c === newColor()"
+              [style.background]="c"
+              [attr.aria-label]="'Selecionar cor ' + c"
+              (click)="selectColor(c)"
+            ></button>
+          }
+        </div>
+      </div>
+
+      <div class="composer__section">
+        <div class="composer__section-head">
+          <atom-text variant="caption" color="muted">Ícones sugeridos</atom-text>
+          <span class="composer__section-value">{{ newIcon() || 'category' }}</span>
+        </div>
+        <div class="icon-grid">
+          @for (icon of presetIcons; track icon) {
+            <button
+              type="button"
+              class="icon-chip"
+              [class.icon-chip--active]="icon === (newIcon() || 'category')"
+              [attr.aria-label]="'Selecionar ícone ' + icon"
+              (click)="selectIcon(icon)"
+            >
+              <atom-icon [name]="icon" size="sm" [color]="icon === (newIcon() || 'category') ? 'var(--color-text)' : 'var(--color-muted)'" />
+              <span>{{ icon }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="composer__preview">
+        <span class="composer__preview-label">Preview</span>
+        <div class="preview-card" [style.--preview-color]="newColor()">
+          <div class="preview-card__icon">
+            <atom-icon [name]="newIcon() || 'category'" size="md" [color]="newColor()" />
+          </div>
+          <div class="preview-card__content">
+            <strong>{{ newName() || 'Nova categoria' }}</strong>
+            <span>{{ previewTypeLabel() }}</span>
+          </div>
+          <atom-badge variant="outline" size="sm" [value]="newIcon() || 'category'" [color]="newColor()" />
+        </div>
+      </div>
+    </div>
+
+    <div popup-footer>
+      <atom-button variant="secondary" [disabled]="creating()" (clicked)="resetForm()">
+        <atom-icon name="restart_alt" size="sm" />
+        Limpar
+      </atom-button>
+      <atom-button [disabled]="!canCreate() || creating()" (clicked)="createCategory()">
+        @if (creating()) {
+          <atom-spinner size="sm" />
+        } @else {
+          <atom-icon name="add" size="sm" />
+          Criar categoria
+        }
+      </atom-button>
+    </div>
+  </shared-popup>
+
+  <div class="categories__workspace">
+    <section class="categories__main">
+      <atom-card padding="md" class="categories__toolbar">
+        <div class="toolbar">
+          <div class="toolbar__search">
+            <atom-input
+              type="search"
+              label="Buscar categoria"
+              name="searchCategory"
+              placeholder="Nome, tipo ou ícone"
+              [(value)]="searchTerm"
+            />
+          </div>
+
+          <div class="toolbar__summary">
+            <span class="toolbar__pill">{{ visibleCount() }} visíveis</span>
+            <span class="toolbar__pill">{{ totalFixed() }} fixas</span>
+            <span class="toolbar__pill">{{ totalVariable() }} variáveis</span>
+          </div>
+        </div>
+      </atom-card>
+
+  @if (loading()) {
+        <atom-feedback-state mode="loading" class="categories__loading" />
+      } @else if (categories().length === 0) {
+        <atom-feedback-state
+          class="categories__empty"
+          icon="category"
+          title="Nenhuma categoria encontrada"
+          description="Crie sua primeira categoria para organizar entradas e saidas."
+        />
+      } @else if (visibleCount() === 0) {
+        <atom-feedback-state
+          class="categories__empty categories__empty--inline"
+          icon="search_off"
+          title="Nenhum resultado para a busca atual"
+          description="Ajuste o termo pesquisado para voltar a visualizar categorias."
+        >
+          <atom-button variant="secondary" size="sm" (clicked)="clearSearch()">
+            <atom-icon name="restart_alt" size="sm" />
+            Mostrar todas
+          </atom-button>
+        </atom-feedback-state>
+      } @else {
+        <div class="catalog">
+          <atom-card padding="md" class="cluster cluster--fixed">
+            <div class="cluster__header">
+              <div>
+                <atom-heading [level]="5">Fixas</atom-heading>
+                <atom-text variant="caption" color="muted">Contas recorrentes e compromissos previsíveis.</atom-text>
+              </div>
+              <div class="cluster__meta">
+                <span>{{ fixedCategories().length }}</span>
+                <small>{{ shareOfTotal(totalFixed()) }}%</small>
+              </div>
+            </div>
+
+            @if (fixedCategories().length > 0) {
+              <div class="category-grid">
+                @for (cat of fixedCategories(); track cat.id) {
+                  <atom-category-tile
+                    [category]="cat"
+                    [deleting]="deleting() === cat.id"
+                    (deleted)="deleteCategory($event)"
+                  />
+                }
+              </div>
+            } @else {
+              <div class="cluster__empty">
+                <atom-icon name="inventory_2" size="lg" color="var(--color-muted)" />
+                <atom-text color="muted">Nenhuma categoria fixa visível.</atom-text>
+              </div>
+            }
+          </atom-card>
+
+          <atom-card padding="md" class="cluster cluster--variable">
+            <div class="cluster__header">
+              <div>
+                <atom-heading [level]="5">Variáveis</atom-heading>
+                <atom-text variant="caption" color="muted">Gastos e entradas que mudam ao longo do mês.</atom-text>
+              </div>
+              <div class="cluster__meta">
+                <span>{{ variableCategories().length }}</span>
+                <small>{{ shareOfTotal(totalVariable()) }}%</small>
+              </div>
+            </div>
+
+            @if (variableCategories().length > 0) {
+              <div class="category-grid">
+                @for (cat of variableCategories(); track cat.id) {
+                  <atom-category-tile
+                    [category]="cat"
+                    [deleting]="deleting() === cat.id"
+                    (deleted)="deleteCategory($event)"
+                  />
+                }
+              </div>
+            } @else {
+              <div class="cluster__empty">
+                <atom-icon name="browse_gallery" size="lg" color="var(--color-muted)" />
+                <atom-text color="muted">Nenhuma categoria variável visível.</atom-text>
+              </div>
+            }
+          </atom-card>
+        </div>
+      }
+    </section>
+  </div>
 </div>

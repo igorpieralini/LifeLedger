@@ -1,71 +1,36 @@
 <div class="dashboard">
   <!-- Stat Cards -->
   <div class="dashboard__stats">
-    <atom-card>
-      <div class="stat">
-        <div class="stat__header">
-          <atom-icon name="trending_up" size="md" color="var(--color-success)" />
-          <atom-text variant="caption" color="muted">Total de Entradas</atom-text>
-        </div>
-        <span class="stat__value stat__value--income">
-          {{ totalIncome() | currency:'BRL':'symbol':'1.2-2' }}
-        </span>
-      </div>
-    </atom-card>
+    <atom-stat-card icon="trending_up" iconColor="var(--color-success)" label="Total de Entradas" variant="income">
+      {{ totalIncome() | currency:'BRL':'symbol':'1.2-2' }}
+    </atom-stat-card>
 
-    <atom-card>
-      <div class="stat">
-        <div class="stat__header">
-          <atom-icon name="trending_down" size="md" color="var(--color-danger)" />
-          <atom-text variant="caption" color="muted">Total de Saídas</atom-text>
-        </div>
-        <span class="stat__value stat__value--expense">
-          {{ totalExpense() | currency:'BRL':'symbol':'1.2-2' }}
-        </span>
-      </div>
-    </atom-card>
+    <atom-stat-card icon="trending_down" iconColor="var(--color-danger)" label="Total de Saídas" variant="expense">
+      {{ totalExpense() | currency:'BRL':'symbol':'1.2-2' }}
+    </atom-stat-card>
 
-    <atom-card>
-      <div class="stat">
-        <div class="stat__header">
-          <atom-icon name="account_balance_wallet" size="md" color="var(--color-primary)" />
-          <atom-text variant="caption" color="muted">Lucro</atom-text>
-        </div>
-        <span class="stat__value" [class.stat__value--income]="profit() >= 0" [class.stat__value--expense]="profit() < 0">
-          {{ profit() | currency:'BRL':'symbol':'1.2-2' }}
-        </span>
-      </div>
-    </atom-card>
+    <atom-stat-card icon="account_balance_wallet" iconColor="var(--color-primary)" label="Lucro" [variant]="profit() >= 0 ? 'income' : 'expense'">
+      {{ profit() | currency:'BRL':'symbol':'1.2-2' }}
+    </atom-stat-card>
 
-    <atom-card>
-      <div class="stat">
-        <div class="stat__header">
-          <atom-icon name="percent" size="md" color="var(--color-warning)" />
-          <atom-text variant="caption" color="muted">% de Lucro</atom-text>
-        </div>
-        <span class="stat__value" [class.stat__value--income]="profitPercent() >= 0" [class.stat__value--expense]="profitPercent() < 0">
-          {{ profitPercent() | number:'1.1-1' }}%
-        </span>
-      </div>
-    </atom-card>
+    <atom-stat-card icon="percent" iconColor="var(--color-warning)" label="% de Lucro" [variant]="profitPercent() >= 0 ? 'income' : 'expense'">
+      {{ profitPercent() | number:'1.1-1' }}%
+    </atom-stat-card>
   </div>
 
   <!-- Charts -->
   <div class="dashboard__charts-section">
     @if (loadingStats()) {
       <atom-card>
-        <div class="charts-loading">
-          <atom-spinner size="lg" />
-          <atom-text color="muted">Carregando gráficos...</atom-text>
-        </div>
+        <atom-feedback-state mode="loading" description="Carregando graficos..." />
       </atom-card>
     } @else if (totalTransactions() === 0) {
       <atom-card>
-        <div class="charts-empty">
-          <atom-icon name="insights" size="xl" color="var(--color-muted)" />
-          <atom-heading [level]="5">Sem dados para exibir gráficos</atom-heading>
-          <atom-text color="muted">Adicione transações para visualizar análises.</atom-text>
-        </div>
+        <atom-feedback-state
+          icon="insights"
+          title="Sem dados para exibir graficos"
+          description="Adicione transacoes para visualizar analises."
+        />
       </atom-card>
     } @else {
       <div class="dashboard__charts-grid">
