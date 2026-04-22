@@ -1,9 +1,0 @@
-@if (routerLink()) {
-  <a class="link" [class]="'link link--' + variant()" [routerLink]="routerLink()">
-    <ng-content />
-  </a>
-} @else {
-  <a class="link" [class]="'link link--' + variant()" [href]="href()" [target]="target()" [attr.rel]="target() === '_blank' ? 'noopener noreferrer' : null">
-    <ng-content />
-  </a>
-}
