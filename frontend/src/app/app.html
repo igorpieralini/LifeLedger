@@ -1,0 +1,14 @@
+﻿<header class="header">
+  <div class="header__brand">
+    <span class="material-symbols-rounded header__logo">auto_awesome</span>
+    <span class="header__title">LifeLedger</span>
+  </div>
+  <button class="header__theme" (click)="theme.toggle()" [attr.aria-label]="'Alternar tema'">
+    <span class="material-symbols-rounded">
+      {{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+    </span>
+  </button>
+</header>
+<main class="main">
+  <router-outlet />
+</main>
