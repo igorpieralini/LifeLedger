@@ -34,6 +34,9 @@ export interface GoalResponse {
   description: string;
   year: number;
   financial: boolean;
+  category: 'CAREER' | 'FINANCE' | 'STUDIES' | 'GROWTH';
+  icon: string | null;
+  color: string | null;
   targetValue: number;
   currentValue: number;
   progress: number;

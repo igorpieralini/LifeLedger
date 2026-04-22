@@ -1,6 +1,7 @@
 package com.lifeledger.repository;
 
 import com.lifeledger.domain.Goal;
+import com.lifeledger.domain.Goal.GoalCategory;
 import com.lifeledger.domain.Goal.GoalStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,10 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     List<Goal> findByUserIdOrderByYearDescCreatedAtDesc(Long userId);
 
     List<Goal> findByUserIdAndYearOrderByCreatedAtDesc(Long userId, Short year);
+
+    List<Goal> findByUserIdAndCategoryOrderByCreatedAtDesc(Long userId, GoalCategory category);
+
+    List<Goal> findByUserIdAndCategoryAndYearOrderByCreatedAtDesc(Long userId, GoalCategory category, Short year);
 
     List<Goal> findByUserIdAndStatusIn(Long userId, List<GoalStatus> statuses);
 

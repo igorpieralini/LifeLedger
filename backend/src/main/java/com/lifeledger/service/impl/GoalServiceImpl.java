@@ -1,6 +1,7 @@
 package com.lifeledger.service.impl;
 
 import com.lifeledger.domain.Goal;
+import com.lifeledger.domain.Goal.GoalCategory;
 import com.lifeledger.domain.Goal.GoalStatus;
 import com.lifeledger.domain.User;
 import com.lifeledger.dto.request.GoalRequest;
@@ -34,7 +35,10 @@ public class GoalServiceImpl implements GoalService {
                 .title(request.title())
                 .description(request.description())
                 .year(request.year().shortValue())
-            .financial(Boolean.TRUE.equals(request.financial()))
+                .financial(Boolean.TRUE.equals(request.financial()))
+                .category(request.category() != null ? request.category() : GoalCategory.CAREER)
+                .icon(request.icon())
+                .color(request.color())
                 .targetValue(request.targetValue())
                 .deadline(request.deadline())
                 .build();
@@ -57,6 +61,16 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<GoalResponse> findAllByUser(Long userId, Integer year, GoalCategory category) {
+        if (category == null) return findAllByUser(userId, year);
+        List<Goal> goals = year != null
+                ? goalRepository.findByUserIdAndCategoryAndYearOrderByCreatedAtDesc(userId, category, year.shortValue())
+                : goalRepository.findByUserIdAndCategoryOrderByCreatedAtDesc(userId, category);
+        return goals.stream().map(GoalResponse::from).toList();
+    }
+
+    @Override
     @Transactional
     public GoalResponse update(Long id, GoalRequest request, Long userId) {
         Goal goal = getGoal(id, userId);
@@ -64,6 +78,9 @@ public class GoalServiceImpl implements GoalService {
         goal.setDescription(request.description());
         goal.setYear(request.year().shortValue());
         goal.setFinancial(Boolean.TRUE.equals(request.financial()));
+        if (request.category() != null) goal.setCategory(request.category());
+        goal.setIcon(request.icon());
+        goal.setColor(request.color());
         goal.setTargetValue(request.targetValue());
         goal.setDeadline(request.deadline());
         return GoalResponse.from(goalRepository.save(goal));

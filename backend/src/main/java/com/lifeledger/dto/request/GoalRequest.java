@@ -1,5 +1,6 @@
 package com.lifeledger.dto.request;
 
+import com.lifeledger.domain.Goal.GoalCategory;
 import com.lifeledger.domain.Goal.GoalStatus;
 import jakarta.validation.constraints.*;
 
@@ -19,6 +20,12 @@ public record GoalRequest(
         Integer year,
 
         Boolean financial,
+
+        GoalCategory category,
+
+        String icon,
+
+        String color,
 
         @DecimalMin(value = "0.0", inclusive = false)
         BigDecimal targetValue,

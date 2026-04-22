@@ -1,6 +1,7 @@
 package com.lifeledger.controller;
 
 import com.lifeledger.config.SecurityUtils;
+import com.lifeledger.domain.Goal.GoalCategory;
 import com.lifeledger.domain.Goal.GoalStatus;
 import com.lifeledger.dto.request.GoalRequest;
 import com.lifeledger.dto.request.ProgressUpdateRequest;
@@ -29,8 +30,9 @@ public class GoalController {
 
     @GetMapping
     public ResponseEntity<List<GoalResponse>> listAll(
-            @RequestParam(required = false) Integer year) {
-        return ResponseEntity.ok(goalService.findAllByUser(SecurityUtils.currentUserId(), year));
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) GoalCategory category) {
+        return ResponseEntity.ok(goalService.findAllByUser(SecurityUtils.currentUserId(), year, category));
     }
 
     @GetMapping("/{id}")

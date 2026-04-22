@@ -1,0 +1,101 @@
+<div class="obj-card" [style.--obj-color]="accentColor()">
+  <div class="obj-card__accent"></div>
+
+  <div class="obj-card__body">
+    <!-- Header -->
+    <div class="obj-card__header">
+      <div class="obj-card__icon">
+        <atom-icon [name]="iconName()" size="md" [color]="accentColor()" />
+      </div>
+      <div class="obj-card__meta">
+        <span class="obj-card__title">{{ goal().title }}</span>
+        <atom-badge [value]="statusLabel()" [variant]="statusVariant()" size="sm" />
+      </div>
+    </div>
+
+    <!-- Description -->
+    @if (goal().description) {
+      <atom-text variant="caption" color="muted" class="obj-card__desc">
+        {{ goal().description }}
+      </atom-text>
+    }
+
+    <!-- Progress bar -->
+    <div class="obj-card__progress">
+      <div class="obj-card__progress-header">
+        <span class="obj-card__progress-label">Progresso</span>
+        <span class="obj-card__progress-pct">{{ goal().progress }}%</span>
+      </div>
+      <div class="obj-card__progress-track">
+        <div
+          class="obj-card__progress-fill"
+          [style.width.%]="goal().progress"
+          [class.obj-card__progress-fill--done]="goal().progress >= 100"
+          [class.obj-card__progress-fill--warning]="isOverdue()"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Info chips -->
+    <div class="obj-card__chips">
+      @if (goal().deadline) {
+        <span class="obj-card__chip" [class.obj-card__chip--danger]="isOverdue()">
+          <atom-icon name="calendar_today" size="sm" [color]="isOverdue() ? 'var(--color-danger)' : 'var(--color-muted)'" />
+          {{ goal().deadline | date:'dd/MM/yyyy' }}
+        </span>
+      }
+      <span class="obj-card__chip">
+        <atom-icon name="event" size="sm" color="var(--color-muted)" />
+        {{ goal().year }}
+      </span>
+      @if (daysLeft() !== null) {
+        <span class="obj-card__chip" [class.obj-card__chip--danger]="isOverdue()">
+          @if (isOverdue()) {
+            {{ daysLeft()! * -1 }}d atrasado
+          } @else {
+            {{ daysLeft() }}d restantes
+          }
+        </span>
+      }
+    </div>
+
+    <!-- Sub-goals -->
+    @if (goal().subGoals.length > 0) {
+      <div class="obj-card__subs">
+        <span class="obj-card__subs-label">Sub-metas ({{ goal().subGoals.length }})</span>
+        <div class="obj-card__subs-list">
+          @for (sub of goal().subGoals; track sub.id) {
+            <div class="obj-card__sub" [class.obj-card__sub--done]="sub.status === 'COMPLETED'">
+              <atom-icon
+                [name]="sub.status === 'COMPLETED' ? 'check_circle' : 'radio_button_unchecked'"
+                size="sm"
+                [color]="sub.status === 'COMPLETED' ? 'var(--color-success)' : 'var(--color-muted)'"
+              />
+              <span>{{ sub.title }}</span>
+              <span class="obj-card__sub-pct">{{ sub.progress }}%</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="obj-card__actions">
+      <atom-button variant="ghost" size="sm" (clicked)="edited.emit(goal())">
+        <atom-icon name="edit" size="sm" color="var(--color-muted)" />
+      </atom-button>
+      @if (goal().status !== 'COMPLETED') {
+        <atom-button variant="ghost" size="sm" (clicked)="statusChanged.emit({ goal: goal(), status: 'COMPLETED' })">
+          <atom-icon name="check_circle" size="sm" color="var(--color-success)" />
+        </atom-button>
+      }
+      <atom-button variant="ghost" size="sm" [disabled]="deleting()" (clicked)="deleted.emit(goal())">
+        @if (deleting()) {
+          <atom-spinner size="sm" />
+        } @else {
+          <atom-icon name="delete_outline" size="sm" color="var(--color-danger)" />
+        }
+      </atom-button>
+    </div>
+  </div>
+</div>

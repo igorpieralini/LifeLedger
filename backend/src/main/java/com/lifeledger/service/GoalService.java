@@ -1,5 +1,6 @@
 package com.lifeledger.service;
 
+import com.lifeledger.domain.Goal.GoalCategory;
 import com.lifeledger.domain.Goal.GoalStatus;
 import com.lifeledger.dto.request.GoalRequest;
 import com.lifeledger.dto.request.ProgressUpdateRequest;
@@ -11,6 +12,7 @@ public interface GoalService {
     GoalResponse create(GoalRequest request, Long userId);
     GoalResponse findById(Long id, Long userId);
     List<GoalResponse> findAllByUser(Long userId, Integer year);
+    List<GoalResponse> findAllByUser(Long userId, Integer year, GoalCategory category);
     GoalResponse update(Long id, GoalRequest request, Long userId);
     GoalResponse updateProgress(Long id, ProgressUpdateRequest request, Long userId);
     GoalResponse updateStatus(Long id, GoalStatus status, Long userId);

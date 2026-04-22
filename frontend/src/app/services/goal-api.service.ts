@@ -3,11 +3,16 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { GoalResponse } from './dashboard-api.service';
 
+export type GoalCategory = 'CAREER' | 'FINANCE' | 'STUDIES' | 'GROWTH';
+
 export interface GoalRequest {
   title: string;
   description?: string;
   year: number;
   financial?: boolean;
+  category?: GoalCategory;
+  icon?: string;
+  color?: string;
   targetValue?: number;
   deadline?: string;
 }
@@ -24,8 +29,11 @@ export class GoalApiService {
     return this.api.post<GoalResponse>('/goals', data);
   }
 
-  list(year?: number): Observable<GoalResponse[]> {
-    return this.api.get<GoalResponse[]>('/goals', year != null ? { year } : undefined);
+  list(year?: number, category?: GoalCategory): Observable<GoalResponse[]> {
+    const params: Record<string, string | number> = {};
+    if (year != null) params['year'] = year;
+    if (category) params['category'] = category;
+    return this.api.get<GoalResponse[]>('/goals', params);
   }
 
   getById(id: number): Observable<GoalResponse> {

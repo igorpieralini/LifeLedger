@@ -38,6 +38,17 @@ public class Goal {
     @Builder.Default
     private Boolean financial = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private GoalCategory category = GoalCategory.CAREER;
+
+    @Column(length = 60)
+    private String icon;
+
+    @Column(length = 20)
+    private String color;
+
     @Column(name = "target_value", precision = 15, scale = 2)
     private BigDecimal targetValue;
 
@@ -73,4 +84,5 @@ public class Goal {
     private void onUpdate() { updatedAt = LocalDateTime.now(); }
 
     public enum GoalStatus { IN_PROGRESS, COMPLETED, DELAYED, CANCELLED }
+    public enum GoalCategory { CAREER, FINANCE, STUDIES, GROWTH }
 }
