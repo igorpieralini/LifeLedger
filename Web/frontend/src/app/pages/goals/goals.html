@@ -1,0 +1,53 @@
+<div class="goals">
+  <section class="goals__header">
+    <div class="goals__intro">
+      <h1>
+        <span class="material-symbols-rounded goals__cat-icon" [style.color]="categoryInfo().color">{{ categoryInfo().icon }}</span>
+        {{ categoryInfo().label }}
+      </h1>
+      <p>{{ stats().total }} metas · {{ stats().completed }} concluídas · {{ stats().inProgress }} em progresso</p>
+    </div>
+    <button class="btn btn--primary" (click)="openCreate()">
+      <app-icon name="add" />
+      Nova meta
+    </button>
+  </section>
+
+  @if (showForm()) {
+    <app-goal-form
+      [editingGoal]="editingGoal()"
+      [saving]="saving()"
+      [defaultCategory]="activeCategory()"
+      (saved)="onSave($event)"
+      (closed)="closeForm()" />
+  }
+
+  @if (loading()) {
+    <app-loading />
+  } @else if (filteredGoals().length === 0) {
+    <app-empty-state
+      icon="flag"
+      message="Nenhuma meta encontrada"
+      actionLabel="Criar meta"
+      (action)="openCreate()" />
+  } @else {
+    <div class="goals__list">
+      @for (goal of filteredGoals(); track goal.id) {
+        <app-goal-card
+          [goal]="goal"
+          [categoryInfo]="getCategoryInfo(goal.category)"
+          [expanded]="expandedGoalId() === goal.id"
+          [addingSubTask]="addingSubTaskId() === goal.id"
+          (edit)="openEdit(goal)"
+          (remove)="remove(goal)"
+          (cycleStatus)="cycleStatus(goal)"
+          (toggleExpand)="toggleExpand(goal.id)"
+          (toggleSubTask)="toggleSubTask(goal, $event)"
+          (removeSubTask)="removeSubTask(goal, $event)"
+          (startAdding)="addingSubTaskId.set(goal.id)"
+          (cancelAdding)="addingSubTaskId.set(null)"
+          (addSubTask)="addSubTask(goal, $event)" />
+      }
+    </div>
+  }
+</div>

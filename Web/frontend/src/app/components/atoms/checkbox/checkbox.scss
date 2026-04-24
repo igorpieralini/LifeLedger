@@ -1,0 +1,69 @@
+.cb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  &__box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__check {
+    width: 12px;
+    height: 10px;
+
+    polyline {
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      transition: stroke-dashoffset 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  // Hover
+  &:hover &__box {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+
+  // Checked state
+  &--checked &__box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  &--checked &__check polyline {
+    stroke-dashoffset: 0;
+  }
+
+  // Focus visible
+  &__input:focus-visible ~ .cb__box {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  // Active press
+  &:active &__box {
+    transform: scale(0.9);
+  }
+}

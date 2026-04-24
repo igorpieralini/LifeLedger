@@ -1,0 +1,6 @@
+<button
+  [type]="type"
+  [class]="'btn btn--' + variant + (size === 'sm' ? ' btn--sm' : '')"
+  [disabled]="disabled">
+  <ng-content />
+</button>

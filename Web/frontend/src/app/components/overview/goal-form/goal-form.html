@@ -1,0 +1,61 @@
+<app-form-panel [title]="panelTitle" (closed)="closed.emit()">
+  <form class="form" (ngSubmit)="save()">
+    <div class="form__field">
+      <label for="title">Título</label>
+      <input id="title" type="text" [(ngModel)]="formTitle" name="title"
+             placeholder="Ex: Economizar R$10.000" required
+             maxlength="255">
+    </div>
+    <div class="form__field">
+      <label for="desc">Descrição</label>
+      <textarea id="desc" [(ngModel)]="formDescription" name="description"
+                placeholder="Detalhes da meta (opcional)" rows="3"
+                maxlength="1000"></textarea>
+    </div>
+    <div class="form__row">
+      <div class="form__field">
+        <label>Categoria</label>
+        <div class="form__cats">
+          @for (cat of categories; track cat.value) {
+            <app-chip
+              [label]="cat.label"
+              [icon]="cat.icon"
+              [color]="cat.color"
+              [active]="formCategory === cat.value"
+              (click)="formCategory = $any(cat.value)" />
+          }
+        </div>
+      </div>
+    </div>
+    <div class="form__row">
+      <div class="form__field">
+        <label for="date">Prazo</label>
+        <input id="date" type="date" [(ngModel)]="formTargetDate" name="targetDate">
+      </div>
+    </div>
+
+    <div class="form__field">
+      <label>Subtarefas (opcional)</label>
+      <div class="form__subtasks">
+        @for (subtask of formSubTasks; track trackByIndex($index); let i = $index) {
+          <input
+            type="text"
+            [(ngModel)]="formSubTasks[i]"
+            [name]="'subtask-' + i"
+            (input)="onSubTaskInput(i)"
+            (blur)="onSubTaskBlur(i)"
+            placeholder="Digite uma subtarefa..."
+            maxlength="255"
+            class="subtask-input">
+        }
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <button type="button" class="btn btn--ghost" (click)="closed.emit()">Cancelar</button>
+      <button type="submit" class="btn btn--primary" [disabled]="!formTitle.trim() || saving">
+        {{ saving ? 'Salvando...' : (editingGoal ? 'Salvar' : 'Criar meta') }}
+      </button>
+    </div>
+  </form>
+</app-form-panel>

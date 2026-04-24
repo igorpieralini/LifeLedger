@@ -1,0 +1,249 @@
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { concat, forkJoin, of } from 'rxjs';
+import { switchMap, toArray } from 'rxjs/operators';
+import { GoalService } from '../../services/goal.service';
+import {
+  CATEGORIES, CategoryInfo, Goal, GoalCategory,
+  GoalRequest, GoalStatus, STATUS_CYCLE, STATUS_LABELS,
+} from '../../models/goal.model';
+
+@Component({
+  selector: 'page-goals',
+  imports: [FormsModule, DatePipe],
+  templateUrl: './goals.html',
+  styleUrl: './goals.scss',
+})
+export class GoalsPage implements OnInit {
+  private readonly api = inject(GoalService);
+
+  readonly categories = CATEGORIES;
+  readonly statusLabels = STATUS_LABELS;
+
+  goals = signal<Goal[]>([]);
+  loading = signal(true);
+  activeCategory = signal<GoalCategory>('HEALTH');
+  showForm = signal(false);
+  editingGoal = signal<Goal | null>(null);
+  saving = signal(false);
+  expandedGoalId = signal<number | null>(null);
+  newSubTaskTitle = signal<string>('');
+  addingSubTask = signal<number | null>(null);
+
+  formTitle = '';
+  formDescription = '';
+  formCategory: GoalCategory = 'FINANCIAL';
+  formTargetDate = '';
+  formProgress = 0;
+  formSubTasks: string[] = [''];
+
+  filteredGoals = computed(() => {
+    const cat = this.activeCategory();
+    const all = this.goals();
+    return all.filter(g => g.category === cat);
+  });
+
+  stats = computed(() => {
+    const all = this.goals();
+    return {
+      total: all.length,
+      completed: all.filter(g => g.status === 'COMPLETED').length,
+      inProgress: all.filter(g => g.status === 'IN_PROGRESS').length,
+    };
+  });
+
+  ngOnInit() {
+    this.load();
+  }
+
+  load() {
+    this.loading.set(true);
+    this.api.list().subscribe({
+      next: goals => { this.goals.set(goals); this.loading.set(false); },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  filterBy(cat: GoalCategory) {
+    this.activeCategory.set(cat);
+  }
+
+  getCategoryInfo(cat: GoalCategory): CategoryInfo {
+    return this.categories.find(c => c.value === cat)!;
+  }
+
+  openCreate() {
+    this.editingGoal.set(null);
+    this.formTitle = '';
+    this.formDescription = '';
+    this.formCategory = 'FINANCIAL';
+    this.formTargetDate = '';
+    this.formProgress = 0;
+    this.formSubTasks = [''];
+    this.showForm.set(true);
+  }
+
+  openEdit(goal: Goal) {
+    this.editingGoal.set(goal);
+    this.formTitle = goal.title;
+    this.formDescription = goal.description ?? '';
+    this.formCategory = goal.category;
+    this.formTargetDate = goal.targetDate ?? '';
+    this.formProgress = goal.progress;
+    this.formSubTasks = goal.subTasks.length > 0 
+      ? [...goal.subTasks.map(st => st.title), '']
+      : [''];
+    this.showForm.set(true);
+  }
+
+  closeForm() {
+    this.showForm.set(false);
+    this.editingGoal.set(null);
+  }
+
+  save() {
+    if (!this.formTitle.trim() || this.saving()) return;
+    this.saving.set(true);
+
+    const editing = this.editingGoal();
+    const subTaskTitles = this.formSubTasks.filter(st => st && st.trim());
+
+    const request: GoalRequest = {
+      title: this.formTitle.trim(),
+      description: this.formDescription.trim() || undefined,
+      category: this.formCategory,
+      targetDate: this.formTargetDate || undefined,
+    };
+
+    const done = () => { this.saving.set(false); this.closeForm(); this.load(); };
+    const fail = () => { this.saving.set(false); };
+
+    const createSubs = (goalId: number) => {
+      if (subTaskTitles.length === 0) { done(); return; }
+      concat(...subTaskTitles.map(t => this.api.createSubTask(goalId, { title: t.trim() })))
+        .pipe(toArray())
+        .subscribe({ next: () => done(), error: () => done() });
+    };
+
+    if (editing) {
+      this.api.update(editing.id, request).subscribe({
+        next: () => {
+          const oldSubs = editing.subTasks || [];
+          if (oldSubs.length === 0) {
+            createSubs(editing.id);
+            return;
+          }
+          concat(...oldSubs.map(st => this.api.deleteSubTask(editing.id, st.id)))
+            .pipe(toArray())
+            .subscribe({
+              next: () => createSubs(editing.id),
+              error: () => createSubs(editing.id),
+            });
+        },
+        error: fail,
+      });
+    } else {
+      this.api.create(request).subscribe({
+        next: (goal) => createSubs(goal.id),
+        error: fail,
+      });
+    }
+  }
+
+  cycleStatus(goal: Goal) {
+    const next = STATUS_CYCLE[goal.status];
+    this.api.updateStatus(goal.id, next).subscribe({ next: () => this.load() });
+  }
+
+  remove(goal: Goal) {
+    this.api.delete(goal.id).subscribe({ next: () => this.load() });
+  }
+
+  toggleExpand(goalId: number) {
+    this.expandedGoalId.set(this.expandedGoalId() === goalId ? null : goalId);
+  }
+
+  isExpanded(goalId: number): boolean {
+    return this.expandedGoalId() === goalId;
+  }
+
+  startAddingSubTask(goalId: number) {
+    this.addingSubTask.set(goalId);
+    this.newSubTaskTitle.set('');
+  }
+
+  cancelAddingSubTask() {
+    this.addingSubTask.set(null);
+    this.newSubTaskTitle.set('');
+  }
+
+  addSubTask(goal: Goal) {
+    const title = this.newSubTaskTitle().trim();
+    if (!title) return;
+
+    this.api.createSubTask(goal.id, { title }).subscribe({
+      next: () => {
+        this.cancelAddingSubTask();
+        this.load();
+      },
+    });
+  }
+
+  toggleSubTask(goal: Goal, subTaskId: number) {
+    // Atualiza imediatamente na UI
+    const updatedGoals = this.goals().map(g => {
+      if (g.id !== goal.id) return g;
+      const updatedSubs = g.subTasks.map(st =>
+        st.id === subTaskId ? { ...st, completed: !st.completed } : st
+      );
+      const completedCount = updatedSubs.filter(st => st.completed).length;
+      const progress = updatedSubs.length > 0
+        ? Math.round((completedCount * 100) / updatedSubs.length)
+        : g.progress;
+      return { ...g, subTasks: updatedSubs, progress };
+    });
+    this.goals.set(updatedGoals);
+
+    // Persiste no backend
+    this.api.toggleSubTask(goal.id, subTaskId).subscribe({
+      next: () => this.load(),
+    });
+  }
+
+  removeSubTask(goal: Goal, subTaskId: number) {
+    this.api.deleteSubTask(goal.id, subTaskId).subscribe({
+      next: () => this.load(),
+    });
+  }
+
+  onSubTaskInput(index: number) {
+    // Se digitou na última caixa e ela não está vazia, adiciona uma nova
+    const currentValue = this.formSubTasks[index];
+    const isLastInput = index === this.formSubTasks.length - 1;
+    
+    if (isLastInput && currentValue && currentValue.trim()) {
+      setTimeout(() => this.formSubTasks.push(''), 0);
+    }
+  }
+  
+  onSubTaskBlur(index: number) {
+    // Remove campos vazios do meio ao perder o foco
+    const isNotLast = index < this.formSubTasks.length - 1;
+    const isEmpty = !this.formSubTasks[index] || !this.formSubTasks[index].trim();
+    
+    if (isNotLast && isEmpty) {
+      setTimeout(() => {
+        this.formSubTasks.splice(index, 1);
+        // Garante que sempre tem pelo menos uma caixa vazia no final
+        if (this.formSubTasks.length === 0 || this.formSubTasks[this.formSubTasks.length - 1].trim()) {
+          this.formSubTasks.push('');
+        }
+      }, 100);
+    }
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+}

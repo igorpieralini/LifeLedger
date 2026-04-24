@@ -1,0 +1,7 @@
+<div class="empty-state">
+  <span class="material-symbols-rounded">{{ icon }}</span>
+  <p>{{ message }}</p>
+  @if (actionLabel) {
+    <button class="btn btn--primary" (click)="action.emit()">{{ actionLabel }}</button>
+  }
+</div>

@@ -1,0 +1,8 @@
+<app-overlay (click)="closed.emit()" />
+<div class="form-panel">
+  <div class="form-panel__header">
+    <h2>{{ title }}</h2>
+    <app-icon-btn icon="close" (click)="closed.emit()" />
+  </div>
+  <ng-content />
+</div>

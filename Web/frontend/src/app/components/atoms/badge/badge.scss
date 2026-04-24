@@ -1,0 +1,30 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  font: 600 12px inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+
+  &--not_started {
+    background: rgba(100, 116, 139, 0.12);
+    color: #94a3b8;
+  }
+
+  &--in_progress {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
+
+  &--completed {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

@@ -1,0 +1,50 @@
+/* ══════════════════════════════════════════
+   LifeLedger — Design Tokens / Theme
+   ══════════════════════════════════════════ */
+
+:root,
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-input: #f1f5f9;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+
+  /* Borders & Shadows */
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Accent */
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+
+  /* Semantic */
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+
+  /* Categories */
+  --cat-financial: #10b981;
+  --cat-academic: #3b82f6;
+  --cat-skills: #8b5cf6;
+  --cat-health: #f43f5e;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0b0f1a;
+  --bg-secondary: #131927;
+  --bg-card: #161d2f;
+  --bg-input: #1e2740;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+
+  --border: #1e293b;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

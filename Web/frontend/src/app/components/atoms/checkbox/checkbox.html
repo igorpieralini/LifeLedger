@@ -1,0 +1,12 @@
+<label class="cb" [class.cb--checked]="checked">
+  <input
+    type="checkbox"
+    class="cb__input"
+    [checked]="checked"
+    (change)="toggle.emit()">
+  <span class="cb__box">
+    <svg class="cb__check" viewBox="0 0 12 10" fill="none">
+      <polyline points="1.5 5.5 4.5 8.5 10.5 1.5" />
+    </svg>
+  </span>
+</label>

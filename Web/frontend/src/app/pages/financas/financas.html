@@ -1,0 +1,137 @@
+<div class="fin">
+  <section class="fin__header">
+    <div class="fin__intro">
+      <h1>
+        <span class="material-symbols-rounded fin__icon" style="color: #10b981">account_balance_wallet</span>
+        Finanças
+      </h1>
+      <p>Controle de renda, investimentos e limites de gastos</p>
+    </div>
+
+    <!-- Month selector -->
+    <div class="fin__month-nav">
+      <button class="fin__month-btn" type="button" (click)="prevMonth()">
+        <span class="material-symbols-rounded">chevron_left</span>
+      </button>
+      <span class="fin__month-label">{{ monthLabel() }}</span>
+      <button class="fin__month-btn" type="button" (click)="nextMonth()">
+        <span class="material-symbols-rounded">chevron_right</span>
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="fin__loading">
+      <span class="material-symbols-rounded fin__spinner">sync</span>
+      Carregando...
+    </div>
+  } @else {
+    <!-- KPI cards -->
+    <div class="fin__kpis">
+      @for (f of fields; track f.key) {
+        <div class="kpi" [style.--kpi-color]="f.color" (click)="startEdit(f.key)">
+          <div class="kpi__top">
+            <span class="material-symbols-rounded kpi__icon">{{ f.icon }}</span>
+            <app-icon-btn icon="edit" size="sm" ariaLabel="Editar" />
+          </div>
+          <span class="kpi__value">{{ formatCurrency(record()[f.key]) }}</span>
+          <span class="kpi__label">{{ f.label }}</span>
+          @if (f.key !== 'monthlyIncome' && record().monthlyIncome > 0) {
+            <span class="kpi__pct">{{ fieldPct(f.key) }}% da renda</span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Summary -->
+    <div class="fin__summary" [class.fin__summary--over]="isOver()">
+      <div class="summary__header">
+        <span class="material-symbols-rounded">{{ isOver() ? 'warning' : 'account_balance_wallet' }}</span>
+        <h2>Resumo mensal</h2>
+      </div>
+
+      <div class="summary__bars">
+        <div class="bar-row">
+          <span class="bar-row__label">Investimento</span>
+          <div class="bar-row__track">
+            <div class="bar-row__fill" style="--bar-color: #3b82f6" [style.width.%]="investmentPct()"></div>
+          </div>
+          <span class="bar-row__pct">{{ investmentPct() }}%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label">Crédito</span>
+          <div class="bar-row__track">
+            <div class="bar-row__fill" style="--bar-color: #f59e0b" [style.width.%]="creditPct()"></div>
+          </div>
+          <span class="bar-row__pct">{{ creditPct() }}%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label">Débito</span>
+          <div class="bar-row__track">
+            <div class="bar-row__fill" style="--bar-color: #8b5cf6" [style.width.%]="debitPct()"></div>
+          </div>
+          <span class="bar-row__pct">{{ debitPct() }}%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label">Dívidas</span>
+          <div class="bar-row__track">
+            <div class="bar-row__fill" style="--bar-color: #ef4444" [style.width.%]="debtsPct()"></div>
+          </div>
+          <span class="bar-row__pct">{{ debtsPct() }}%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label">Disponível</span>
+          <div class="bar-row__track">
+            <div class="bar-row__fill" [style.--bar-color]="isOver() ? '#ef4444' : '#10b981'" [style.width.%]="availablePct()"></div>
+          </div>
+          <span class="bar-row__pct" [class.bar-row__pct--negative]="isOver()">{{ formatCurrency(available()) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Investment history -->
+    @if (investmentHistory().length > 0) {
+      <div class="fin__invest">
+        <div class="invest__header">
+          <span class="material-symbols-rounded">trending_up</span>
+          <h2>Investimento acumulado</h2>
+          <span class="invest__total">{{ formatCurrency(totalInvested()) }}</span>
+        </div>
+
+        <div class="invest__chart">
+          @for (m of investmentHistory(); track m.label) {
+            <div class="invest__bar-col">
+              <span class="invest__bar-value">{{ formatCurrency(m.value) }}</span>
+              <div class="invest__bar"
+                   [style.height.%]="totalInvested() > 0 ? (m.value / investmentHistory()[0].value) * 100 : 0">
+              </div>
+              <span class="invest__bar-label">{{ m.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Edit modal -->
+  @if (editing(); as key) {
+    <div class="fin__overlay" (click)="cancelEdit()"></div>
+    <div class="fin__modal">
+      <div class="fin__modal-header">
+        <h3>Editar valor</h3>
+        <app-icon-btn icon="close" ariaLabel="Fechar" (click)="cancelEdit()" />
+      </div>
+      <div class="fin__modal-body">
+        <div class="currency-input">
+          <span class="currency-input__prefix">R$</span>
+          <input type="number" [(ngModel)]="editValue" min="0" step="100"
+                 (keyup.enter)="saveEdit()" autofocus>
+        </div>
+      </div>
+      <div class="fin__modal-footer">
+        <button class="btn btn--sm btn--ghost" type="button" (click)="cancelEdit()">Cancelar</button>
+        <button class="btn btn--sm btn--primary" type="button" (click)="saveEdit()">Salvar</button>
+      </div>
+    </div>
+  }
+</div>

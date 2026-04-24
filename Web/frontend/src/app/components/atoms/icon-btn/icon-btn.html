@@ -1,0 +1,6 @@
+<button
+  type="button"
+  [class]="'icon-btn' + (variant === 'danger' ? ' icon-btn--danger' : '') + (size === 'sm' ? ' icon-btn--sm' : '')"
+  [attr.aria-label]="ariaLabel">
+  <span class="material-symbols-rounded">{{ icon }}</span>
+</button>

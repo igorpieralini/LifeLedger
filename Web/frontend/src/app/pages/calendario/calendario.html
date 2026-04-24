@@ -1,0 +1,117 @@
+<div class="cal">
+  <!-- Header -->
+  <section class="cal__header">
+    <div class="cal__intro">
+      <h1>
+        <span class="material-symbols-rounded cal__icon" style="color: #f59e0b">calendar_month</span>
+        Calendário
+      </h1>
+      <p>Defina sua rotina semanal</p>
+    </div>
+    <div class="cal__nav">
+      <app-icon-btn icon="chevron_left" ariaLabel="Semana anterior" (click)="prevWeek()" />
+      <button class="cal__today-btn" (click)="goToday()">Hoje</button>
+      <app-icon-btn icon="chevron_right" ariaLabel="Próxima semana" (click)="nextWeek()" />
+      <span class="cal__week-label">{{ weekLabel() }}</span>
+    </div>
+  </section>
+
+  <!-- Week grid -->
+  <div class="cal__grid-wrapper">
+    <div class="cal__grid">
+      <!-- Time column -->
+      <div class="cal__time-col">
+        <div class="cal__day-header-placeholder"></div>
+        @for (hour of hours; track hour) {
+          <div class="cal__time-label">
+            {{ hour.toString().padStart(2, '0') }}:00
+          </div>
+        }
+      </div>
+
+      <!-- Day columns -->
+      @for (day of weekDates(); track day.value) {
+        <div class="cal__day-col">
+          <div class="cal__day-header" [class.cal__day-header--today]="day.isToday">
+            <span class="cal__day-name">{{ day.short }}</span>
+            <span class="cal__day-date" [class.cal__day-date--today]="day.isToday">{{ day.date }}</span>
+          </div>
+          <div class="cal__day-body">
+            @for (hour of hours; track hour) {
+              <div class="cal__cell"
+                   (mousedown)="onCellMouseDown(day.value, hour, $event)"
+                   (mouseenter)="onCellMouseEnter(day.value, hour)"></div>
+            }
+            <!-- Drag preview -->
+            @if (isDragDay(day.value)) {
+              <div class="cal__drag-preview"
+                   [style.top]="getDragStyle().top"
+                   [style.height]="getDragStyle().height"></div>
+            }
+            <!-- Events overlay -->
+            @for (event of getEventsForDay(day.value); track event.id) {
+              <div class="cal__event"
+                   [style.top]="getEventStyle(event).top"
+                   [style.height]="getEventStyle(event).height"
+                   [style.background]="getEventStyle(event).background"
+                   (click)="onEventClick(event, $event)">
+                <span class="cal__event-title">{{ event.title }}</span>
+                <span class="cal__event-time">{{ event.startTime }} - {{ event.endTime }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Form modal -->
+  @if (showForm()) {
+    <div class="cal__overlay" (click)="closeForm()"></div>
+    <div class="cal__form">
+      <div class="cal__form-header">
+        <h3>{{ editingEvent() ? 'Editar evento' : 'Novo evento' }}</h3>
+        <app-icon-btn icon="close" ariaLabel="Fechar" (click)="closeForm()" />
+      </div>
+
+      <div class="cal__form-body">
+        <div class="cal__form-time-info">
+          <span class="material-symbols-rounded">schedule</span>
+          {{ getDayName(formDay) }}, {{ formStart }} - {{ formEnd }}
+        </div>
+
+        <label class="cal__field">
+          <span>Título</span>
+          <input type="text" [(ngModel)]="formTitle" placeholder="Ex: Academia, Estudo..."
+                 (keyup.enter)="onSave()" autofocus>
+        </label>
+
+        <div class="cal__field">
+          <span>Cor</span>
+          <div class="cal__colors">
+            @for (c of colors; track c) {
+              <button type="button"
+                      class="cal__color-btn"
+                      [style.background]="c"
+                      [class.cal__color-btn--active]="formColor === c"
+                      (click)="formColor = c"></button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="cal__form-footer">
+        @if (editingEvent()) {
+          <button class="btn btn--sm btn--ghost cal__delete-btn" type="button" (click)="onDelete()">
+            <span class="material-symbols-rounded">delete</span>
+            Excluir
+          </button>
+        }
+        <div class="cal__form-actions">
+          <button class="btn btn--sm btn--ghost" type="button" (click)="closeForm()">Cancelar</button>
+          <button class="btn btn--sm btn--primary" type="button" (click)="onSave()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

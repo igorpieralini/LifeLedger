@@ -1,0 +1,347 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.games {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  gap: 16px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    p { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+  }
+
+  &__icon { font-size: 28px; }
+
+  // Global schedule bar
+  &__schedule {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+
+    &:hover { box-shadow: var(--shadow-lg); border-color: var(--accent); }
+
+    app-icon-btn { opacity: 0; transition: opacity 0.15s; }
+    &:hover app-icon-btn { opacity: 1; }
+  }
+
+  &__schedule-icon {
+    font-size: 24px;
+    color: var(--accent);
+  }
+
+  &__schedule-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+  }
+
+  &__schedule-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  &__schedule-value {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+      &:hover { background: var(--text-secondary); }
+    }
+  }
+
+  // Modal
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 100;
+  }
+
+  &__modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 101;
+    width: 400px;
+    max-width: 90vw;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  &__modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  &__modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .material-symbols-rounded { font-size: 24px; color: var(--accent); }
+    h3 { font-size: 16px; font-weight: 600; }
+  }
+
+  &__modal-body {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+  }
+}
+
+// Game row
+.game-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.15s;
+
+  &:hover { box-shadow: var(--shadow-lg); }
+
+  &--blocked {
+    opacity: 0.6;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  &__icon {
+    font-size: 24px;
+    color: #ef4444;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 120px;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__cat {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  &__tags {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  &:hover &__actions { opacity: 1; }
+}
+
+// Tags
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  .material-symbols-rounded { font-size: 13px; }
+
+  &--blocked {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+  }
+
+  &--limit {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+  }
+}
+
+// Block button
+.block-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  .material-symbols-rounded { font-size: 18px; }
+
+  &:hover { background: var(--bg-input); color: var(--text-primary); }
+
+  &--active {
+    color: #ef4444;
+    &:hover { background: rgba(239, 68, 68, 0.1); }
+  }
+}
+
+// Rule sections in modal
+.rule-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: 10px;
+}
+
+.rule-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  .material-symbols-rounded { font-size: 18px; color: var(--accent); }
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+}
+
+.rule-config {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 24px;
+}
+
+.rule-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.rule-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 60px;
+  text-align: right;
+}
+
+// Schedule fields
+.schedule-fields {
+  display: flex;
+  gap: 16px;
+}
+
+.time-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font: 14px inherit;
+    outline: none;
+
+    &:focus { border-color: var(--accent); }
+  }
+}
+
+@media (max-width: 768px) {
+  .games {
+    &__header { flex-direction: column; align-items: flex-start; }
+  }
+  .game-row {
+    &__actions { opacity: 1; }
+    &__tags { display: none; }
+  }
+}

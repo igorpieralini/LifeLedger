@@ -1,0 +1,209 @@
+<div class="goals">
+  <section class="goals__header">
+    <div class="goals__intro">
+      <h1>Minhas Metas</h1>
+      <p>{{ stats().total }} metas · {{ stats().completed }} concluídas · {{ stats().inProgress }} em progresso</p>
+    </div>
+    <button class="btn btn--primary" (click)="openCreate()">
+      <span class="material-symbols-rounded">add</span>
+      Nova meta
+    </button>
+  </section>
+
+  <nav class="goals__filters">
+    @for (cat of categories; track cat.value) {
+      <button
+        class="chip"
+        [class.chip--active]="activeCategory() === cat.value"
+        [style.--chip-color]="cat.color"
+        (click)="filterBy(cat.value)">
+        <span class="material-symbols-rounded chip__icon">{{ cat.icon }}</span>
+        {{ cat.label }}
+      </button>
+    }
+  </nav>
+
+  @if (showForm()) {
+    <div class="overlay" (click)="closeForm()"></div>
+    <div class="form-panel">
+      <div class="form-panel__header">
+        <h2>{{ editingGoal() ? 'Editar meta' : 'Nova meta' }}</h2>
+        <button class="icon-btn" (click)="closeForm()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <form class="form" (ngSubmit)="save()">
+        <div class="form__field">
+          <label for="title">Título</label>
+          <input id="title" type="text" [(ngModel)]="formTitle" name="title"
+                 placeholder="Ex: Economizar R$10.000" required autofocus
+                 maxlength="255">
+        </div>
+        <div class="form__field">
+          <label for="desc">Descrição</label>
+          <textarea id="desc" [(ngModel)]="formDescription" name="description"
+                    placeholder="Detalhes da meta (opcional)" rows="3"
+                    maxlength="1000"></textarea>
+        </div>
+        <div class="form__row">
+          <div class="form__field">
+            <label>Categoria</label>
+            <div class="form__cats">
+              @for (cat of categories; track cat.value) {
+                <button type="button" class="cat-chip"
+                        [class.cat-chip--active]="formCategory === cat.value"
+                        [style.--chip-color]="cat.color"
+                        (click)="formCategory = $any(cat.value)">
+                  <span class="material-symbols-rounded">{{ cat.icon }}</span>
+                  {{ cat.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="form__field">
+            <label for="date">Prazo</label>
+            <input id="date" type="date" [(ngModel)]="formTargetDate" name="targetDate">
+          </div>
+        </div>
+        
+        <!-- Subtarefas -->
+        <div class="form__field">
+          <label>Subtarefas (opcional)</label>
+          <div class="form__subtasks">
+            @for (subtask of formSubTasks; track trackByIndex($index); let i = $index) {
+              <input 
+                type="text" 
+                [(ngModel)]="formSubTasks[i]"
+                [name]="'subtask-' + i"
+                (input)="onSubTaskInput(i)"
+                (blur)="onSubTaskBlur(i)"
+                placeholder="Digite uma subtarefa..."
+                maxlength="255"
+                class="subtask-input">
+            }
+          </div>
+        </div>
+        
+        <div class="form__actions">
+          <button type="button" class="btn btn--ghost" (click)="closeForm()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="!formTitle.trim() || saving()">
+            {{ saving() ? 'Salvando...' : (editingGoal() ? 'Salvar' : 'Criar meta') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="goals__loading">
+      <span class="material-symbols-rounded spin">progress_activity</span>
+    </div>
+  } @else if (filteredGoals().length === 0) {
+    <div class="goals__empty">
+      <span class="material-symbols-rounded">flag</span>
+      <p>Nenhuma meta encontrada</p>
+      <button class="btn btn--primary" (click)="openCreate()">Criar meta</button>
+    </div>
+  } @else {
+    <div class="goals__grid">
+      @for (goal of filteredGoals(); track goal.id) {
+        <div class="card" [style.--card-accent]="getCategoryInfo(goal.category).color">
+          <div class="card__accent"></div>
+          <div class="card__top">
+            <span class="card__cat">
+              <span class="material-symbols-rounded">{{ getCategoryInfo(goal.category).icon }}</span>
+              {{ getCategoryInfo(goal.category).label }}
+            </span>
+            <div class="card__actions">
+              <button class="icon-btn" (click)="openEdit(goal)" aria-label="Editar">
+                <span class="material-symbols-rounded">edit</span>
+              </button>
+              <button class="icon-btn icon-btn--danger" (click)="remove(goal)" aria-label="Excluir">
+                <span class="material-symbols-rounded">delete</span>
+              </button>
+            </div>
+          </div>
+          <h3 class="card__title">{{ goal.title }}</h3>
+          @if (goal.description) {
+            <p class="card__desc">{{ goal.description }}</p>
+          }
+          
+          <!-- Subtarefas -->
+          @if (goal.subTasks && goal.subTasks.length > 0) {
+            <div class="card__subtasks">
+              <button class="subtasks-toggle" (click)="toggleExpand(goal.id)">
+                <span class="material-symbols-rounded">{{ isExpanded(goal.id) ? 'expand_less' : 'expand_more' }}</span>
+                {{ goal.subTasks.length }} subtarefa{{ goal.subTasks.length > 1 ? 's' : '' }}
+              </button>
+              
+              @if (isExpanded(goal.id)) {
+                <div class="subtasks-list">
+                  @for (subtask of goal.subTasks; track subtask.id) {
+                    <div class="subtask-item">
+                      <input 
+                        type="checkbox" 
+                        [checked]="subtask.completed"
+                        (change)="toggleSubTask(goal, subtask.id)"
+                        class="subtask-checkbox">
+                      <span class="subtask-title" [class.completed]="subtask.completed">
+                        {{ subtask.title }}
+                      </span>
+                      <button class="icon-btn icon-btn--sm" (click)="removeSubTask(goal, subtask.id)">
+                        <span class="material-symbols-rounded">delete</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+          
+          <!-- Adicionar subtarefa -->
+          @if (isExpanded(goal.id)) {
+            @if (addingSubTask() === goal.id) {
+              <div class="add-subtask-form">
+                <input 
+                  type="text" 
+                  [(ngModel)]="newSubTaskTitle"
+                  placeholder="Nova subtarefa..."
+                  (keyup.enter)="addSubTask(goal)"
+                  (keyup.escape)="cancelAddingSubTask()"
+                  autofocus>
+                <div class="add-subtask-actions">
+                  <button class="btn btn--sm btn--ghost" (click)="cancelAddingSubTask()">Cancelar</button>
+                  <button class="btn btn--sm btn--primary" (click)="addSubTask(goal)">Adicionar</button>
+                </div>
+              </div>
+            } @else {
+              <button class="add-subtask-btn" (click)="startAddingSubTask(goal.id)">
+                <span class="material-symbols-rounded">add</span>
+                Adicionar subtarefa
+              </button>
+            }
+          }
+          
+          <div class="card__progress">
+            <div class="progress-bar">
+              <div class="progress-bar__fill" [style.width.%]="goal.progress"></div>
+            </div>
+            <span class="card__pct">{{ goal.progress }}%</span>
+          </div>
+          <div class="card__footer">
+            <button class="status-badge status-badge--{{ goal.status.toLowerCase() }}"
+                    (click)="cycleStatus(goal)" [attr.aria-label]="'Alterar status'">
+              {{ statusLabels[goal.status] }}
+            </button>
+            @if (goal.targetDate) {
+              <span class="card__date">
+                <span class="material-symbols-rounded">calendar_today</span>
+                {{ goal.targetDate | date:'dd/MM/yyyy' }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

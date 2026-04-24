@@ -1,0 +1,83 @@
+<div class="row" [style.--card-accent]="categoryInfo.color" [class.row--expanded]="expanded">
+  <div class="row__header" (click)="toggleExpand.emit()">
+    <span class="row__accent"></span>
+    <span class="row__cat material-symbols-rounded">{{ categoryInfo.icon }}</span>
+    <span class="row__title">{{ goal.title }}</span>
+
+    @if (goal.subTasks && goal.subTasks.length > 0) {
+      <span class="row__meta">
+        <span class="material-symbols-rounded">checklist</span>
+        {{ completedCount }}/{{ goal.subTasks.length }}
+      </span>
+    }
+
+    <div class="row__progress">
+      <app-progress-bar [value]="goal.progress" />
+      <span class="row__pct">{{ goal.progress }}%</span>
+    </div>
+
+    <app-badge
+      [status]="goal.status"
+      [label]="statusLabels[goal.status]"
+      ariaLabel="Alterar status"
+      (click)="onStatusClick($event)" />
+
+    @if (goal.targetDate) {
+      <span class="row__meta">
+        <span class="material-symbols-rounded">calendar_today</span>
+        {{ goal.targetDate | date:'dd/MM/yyyy' }}
+      </span>
+    }
+
+    <div class="row__actions">
+      <app-icon-btn icon="edit" size="sm" ariaLabel="Editar" (click)="onEditClick($event)" />
+      <app-icon-btn icon="delete" variant="danger" size="sm" ariaLabel="Excluir" (click)="onRemoveClick($event)" />
+    </div>
+
+    <span class="material-symbols-rounded row__chevron">{{ expanded ? 'expand_less' : 'expand_more' }}</span>
+  </div>
+
+  @if (expanded) {
+    <div class="row__body">
+      @if (goal.description) {
+        <p class="row__desc">{{ goal.description }}</p>
+      }
+
+      @if (goal.subTasks && goal.subTasks.length > 0) {
+        <div class="row__subtasks">
+          @for (subtask of goal.subTasks; track subtask.id) {
+            <div class="subtask-item">
+              <app-checkbox
+                [checked]="subtask.completed"
+                (toggle)="toggleSubTask.emit(subtask.id)" />
+              <span class="subtask-title" [class.completed]="subtask.completed">
+                {{ subtask.title }}
+              </span>
+              <app-icon-btn icon="close" variant="danger" size="sm" (click)="removeSubTask.emit(subtask.id)" />
+            </div>
+          }
+        </div>
+      }
+
+      @if (addingSubTask) {
+        <div class="add-subtask-form">
+          <input
+            type="text"
+            [(ngModel)]="newSubTaskTitle"
+            placeholder="Nova subtarefa..."
+            (keyup.enter)="onAdd()"
+            (keyup.escape)="cancelAdding.emit()">
+          <div class="add-subtask-actions">
+            <button class="btn btn--sm btn--ghost" type="button" (click)="cancelAdding.emit()">Cancelar</button>
+            <button class="btn btn--sm btn--primary" type="button" (click)="onAdd()">Adicionar</button>
+          </div>
+        </div>
+      } @else {
+        <button class="add-subtask-btn" type="button" (click)="startAdding.emit()">
+          <span class="material-symbols-rounded">add</span>
+          Adicionar subtarefa
+        </button>
+      }
+    </div>
+  }
+</div>
