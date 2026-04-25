@@ -1,0 +1,107 @@
+<div class="dash">
+  <section class="dash__hero">
+    <div class="hero__content">
+      <h1 class="dash__title">Dashboard</h1>
+      <p class="hero__subtitle">
+        Visão consolidada das suas metas com foco em progresso, constância e prioridades.
+      </p>
+
+      <div class="hero__chips">
+        <span class="hero-chip">
+          <span class="material-symbols-rounded">target</span>
+          {{ total() }} metas
+        </span>
+        <span class="hero-chip">
+          <span class="material-symbols-rounded">workspace_premium</span>
+          {{ completionRate() }}% concluídas
+        </span>
+        @if (topCategory(); as top) {
+          <span class="hero-chip" [style.--chip-color]="top.color">
+            <span class="material-symbols-rounded">{{ top.icon }}</span>
+            Categoria foco: {{ top.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="hero__score">
+      <span class="hero__score-value">{{ avgProgress() }}%</span>
+      <span class="hero__score-label">Progresso médio</span>
+      <app-progress-bar [value]="avgProgress()" />
+    </div>
+  </section>
+
+  <div class="dash__cards">
+    <div class="kpi kpi--accent">
+      <span class="material-symbols-rounded kpi__icon">flag</span>
+      <div class="kpi__body">
+        <span class="kpi__value">{{ total() }}</span>
+        <span class="kpi__label">Total de metas</span>
+      </div>
+    </div>
+    <div class="kpi">
+      <span class="material-symbols-rounded kpi__icon" style="color: var(--success)">check_circle</span>
+      <div class="kpi__body">
+        <span class="kpi__value">{{ completed() }}</span>
+        <span class="kpi__label">Concluídas</span>
+      </div>
+    </div>
+    <div class="kpi">
+      <span class="material-symbols-rounded kpi__icon" style="color: var(--warning)">pending</span>
+      <div class="kpi__body">
+        <span class="kpi__value">{{ inProgress() }}</span>
+        <span class="kpi__label">Em progresso</span>
+      </div>
+    </div>
+    <div class="kpi">
+      <span class="material-symbols-rounded kpi__icon" style="color: var(--text-secondary)">hourglass_empty</span>
+      <div class="kpi__body">
+        <span class="kpi__value">{{ notStarted() }}</span>
+        <span class="kpi__label">Não iniciadas</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="dash__section">
+    <h2 class="dash__subtitle">Por categoria</h2>
+    <div class="dash__categories">
+      @for (cat of categoryCounts(); track cat.value) {
+        <div class="cat-card" [style.--cat-color]="cat.color">
+          <div class="cat-card__header">
+            <span class="material-symbols-rounded" [style.color]="cat.color">{{ cat.icon }}</span>
+            <span class="cat-card__name">{{ cat.label }}</span>
+            <span class="cat-card__badge">{{ cat.completed }}/{{ cat.count }}</span>
+          </div>
+          <app-progress-bar [value]="cat.avgProgress" />
+          <span class="cat-card__pct">{{ cat.avgProgress }}%</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (recentGoals().length > 0) {
+    <section class="dash__section">
+      <h2 class="dash__subtitle">Atividade recente</h2>
+      <div class="dash__recent">
+        @for (goal of recentGoals(); track goal.id) {
+          <div class="recent-item" [style.--item-color]="getCatColor(goal.category)">
+            <span class="material-symbols-rounded recent-item__icon"
+              [style.color]="getCatColor(goal.category)">
+              {{ getCatIcon(goal.category) }}
+            </span>
+            <div class="recent-item__info">
+              <div class="recent-item__top">
+                <span class="recent-item__title">{{ goal.title }}</span>
+                <span class="recent-item__status">{{ getStatusLabel(goal.status) }}</span>
+              </div>
+              <span class="recent-item__meta">
+                {{ goal.progress }}% concluído • atualizado em {{ formatUpdatedAt(goal.updatedAt) }}
+              </span>
+            </div>
+            <app-progress-bar [value]="goal.progress" />
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

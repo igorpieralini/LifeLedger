@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { GoalService } from '../../services/goal.service';
-import { Goal, CATEGORIES, GoalCategory } from '../../models/goal.model';
+import { Goal, CATEGORIES, GoalCategory, GoalStatus, STATUS_LABELS } from '../../models/goal.model';
 import { ProgressBarComponent } from '../../components/atoms/progress-bar/progress-bar';
 
 @Component({
@@ -20,6 +20,11 @@ export class DashPage implements OnInit {
   completed = computed(() => this.goals().filter(g => g.status === 'COMPLETED').length);
   inProgress = computed(() => this.goals().filter(g => g.status === 'IN_PROGRESS').length);
   notStarted = computed(() => this.goals().filter(g => g.status === 'NOT_STARTED').length);
+  completionRate = computed(() => {
+    const total = this.total();
+    if (total === 0) return 0;
+    return Math.round((this.completed() / total) * 100);
+  });
 
   avgProgress = computed(() => {
     const all = this.goals();
@@ -38,10 +43,15 @@ export class DashPage implements OnInit {
     })
   );
 
+  topCategory = computed(() =>
+    [...this.categoryCounts()]
+      .sort((a, b) => b.count - a.count)[0] ?? null
+  );
+
   recentGoals = computed(() =>
     [...this.goals()]
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5)
+      .slice(0, 3)
   );
 
   ngOnInit() {
@@ -50,5 +60,20 @@ export class DashPage implements OnInit {
 
   getCatIcon(cat: GoalCategory): string {
     return this.categories.find(c => c.value === cat)?.icon ?? 'flag';
+  }
+
+  getCatColor(cat: GoalCategory): string {
+    return this.categories.find(c => c.value === cat)?.color ?? 'var(--accent)';
+  }
+
+  getStatusLabel(status: GoalStatus): string {
+    return STATUS_LABELS[status];
+  }
+
+  formatUpdatedAt(value: string): string {
+    return new Date(value).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+    });
   }
 }
