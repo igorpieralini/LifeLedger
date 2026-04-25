@@ -44,15 +44,6 @@ INSERT INTO public.categories VALUES (18, 1, 'Streaming', 'VARIABLE', '#a855f7',
 INSERT INTO public.categories VALUES (19, 1, 'Lazer / Entretenimento', 'VARIABLE', '#9333ea', 'local_activity', '2026-04-01 23:07:36.232068');
 INSERT INTO public.categories VALUES (20, 1, 'Outros itens', 'VARIABLE', '#6b7280', 'category', '2026-04-01 23:07:36.236068');
 
-
---
--- Data for Name: finance_records; Type: TABLE DATA; Schema: public; Owner: -
---
-
-INSERT INTO public.finance_records VALUES (1, 2026, 4, 2000.00, 650.00, 300.00, 300.00, '2026-04-23 21:49:48.28359', '2026-04-23 22:22:07.149224', 0.00);
-INSERT INTO public.finance_records VALUES (2, 2026, 5, 0.00, 200.00, 0.00, 0.00, '2026-04-23 22:22:29.450411', '2026-04-23 22:22:29.450411', 0.00);
-
-
 --
 -- Data for Name: goals; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -67,13 +58,6 @@ INSERT INTO public.goals VALUES (14, 'Guardar 3 Salários', 'Guardar em um Cofri
 INSERT INTO public.goals VALUES (8, 'Dentista', NULL, 'HEALTH', 'NOT_STARTED', '2026-06-30', 80, '2026-04-22 23:12:56.35061', '2026-04-23 22:32:21.463475');
 INSERT INTO public.goals VALUES (9, 'Manchas na pele', NULL, 'HEALTH', 'NOT_STARTED', '2027-06-30', 40, '2026-04-22 23:14:13.816443', '2026-04-23 22:33:17.499524');
 INSERT INTO public.goals VALUES (15, 'Inglês nível médio', 'Melhorar Vocabulário e fala no inglês', 'ACADEMIC', 'NOT_STARTED', '2026-08-10', 0, '2026-04-23 22:36:37.214987', '2026-04-23 22:36:37.214987');
-
-
---
--- Data for Name: routine_events; Type: TABLE DATA; Schema: public; Owner: -
---
-
-
 
 --
 -- Data for Name: sub_tasks; Type: TABLE DATA; Schema: public; Owner: -
@@ -278,27 +262,11 @@ INSERT INTO public.transactions VALUES (161, 1, 4, 'EXPENSE', 370.90, 'APLICACAO
 
 SELECT pg_catalog.setval('public.categories_id_seq', 20, true);
 
-
---
--- Name: finance_records_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.finance_records_id_seq', 2, true);
-
-
 --
 -- Name: goals_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.goals_id_seq', 15, true);
-
-
---
--- Name: routine_events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.routine_events_id_seq', 1, false);
-
 
 --
 -- Name: sub_tasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -

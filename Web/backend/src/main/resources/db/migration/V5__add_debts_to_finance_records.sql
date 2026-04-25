@@ -1,2 +1,0 @@
-ALTER TABLE finance_records
-    ADD COLUMN debts NUMERIC(12, 2) NOT NULL DEFAULT 0;
