@@ -6,4 +6,17 @@ target/
 .idea/
 *.iml
 .DS_Store
+
+# Local environment overrides
+.env
+.env.*
+!.env.example
 application-local.yml
+application-*.local.yml
+
+# Local database/export artifacts
+*.dump
+*.backup
+*.bak
+*.sqlite
+*.sqlite3
